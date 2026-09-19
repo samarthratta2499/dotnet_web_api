@@ -1,0 +1,722 @@
+[
+  {
+    "test_case_id": "TC-CODE-001",
+    "category": "Coding",
+    "title": "C# Naming Convention",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class user_service\n{\n    public string display_name { get; set; } = string.Empty;\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-001"
+    ],
+    "ground_truth": {
+      "issue": "ชื่อ Class และ Property ไม่เป็น PascalCase ตาม C# Naming Convention",
+      "expected_fix": "เปลี่ยนเป็น UserService และ DisplayName"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-002",
+    "category": "Coding",
+    "title": "Async Method Naming",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public async Task<UserDto> GetUser(int id)\n{\n    return await _userService.GetByIdAsync(id);\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-002"
+    ],
+    "ground_truth": {
+      "issue": "ชื่อ asynchronous method ไม่ได้ลงท้ายด้วย Async",
+      "expected_fix": "เปลี่ยนชื่อ GetUser เป็น GetUserAsync"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-003",
+    "category": "Coding",
+    "title": "Avoid Async Void",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public async void ProcessUserAsync()\n{\n    await _userService.ProcessAsync();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-003"
+    ],
+    "ground_truth": {
+      "issue": "ใช้ async void ใน method ที่ไม่ใช่ Event Handler",
+      "expected_fix": "เปลี่ยน return type จาก void เป็น Task"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-004",
+    "category": "Coding",
+    "title": "Dependency Injection",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UserService\n{\n    private readonly IUserRepository _repository = ServiceLocator.Get<IUserRepository>();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-004"
+    ],
+    "ground_truth": {
+      "issue": "Service Dependency ไม่ได้รับผ่าน Dependency Injection",
+      "expected_fix": "รับ IUserRepository ผ่าน constructor injection"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-005",
+    "category": "Coding",
+    "title": "Avoid Direct Service Instantiation",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UsersController : ControllerBase\n{\n    private readonly UserService _service = new UserService();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-005"
+    ],
+    "ground_truth": {
+      "issue": "Controller สร้าง Service Dependency ด้วย new โดยตรง",
+      "expected_fix": "Inject IUserService ผ่าน constructor"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-006",
+    "category": "Coding",
+    "title": "Exception Handling",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public async Task ProcessUserAsync()\n{\n    await _userService.ProcessAsync();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-006"
+    ],
+    "ground_truth": {
+      "issue": "Operation ที่อาจเกิด Exception ไม่มีการจัดการตามมาตรฐานที่กำหนด",
+      "expected_fix": "จัดการ Exception ในระดับที่เหมาะสมหรือใช้ Global Exception Handler"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-007",
+    "category": "Coding",
+    "title": "No Empty Catch Block",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "try\n{\n    await _userService.ProcessAsync();\n}\ncatch (Exception)\n{\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-007"
+    ],
+    "ground_truth": {
+      "issue": "Catch Block ว่างและละเลย Exception",
+      "expected_fix": "Log/handle Exception อย่างเหมาะสม และ rethrow เมื่อจำเป็น"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-008",
+    "category": "Coding",
+    "title": "Structured Logging",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "Console.WriteLine($\"Getting user: {id}\");",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-008"
+    ],
+    "ground_truth": {
+      "issue": "ใช้ Console.WriteLine สำหรับ Application Logging",
+      "expected_fix": "ใช้ ILogger พร้อม Structured Logging เช่น _logger.LogInformation(\"Getting user: {UserId}\", id)"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-009",
+    "category": "Coding",
+    "title": "Avoid Duplicate Logic",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "decimal total1 = order1.Items.Sum(x => x.Price * x.Quantity);\ndecimal total2 = order2.Items.Sum(x => x.Price * x.Quantity);",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-009"
+    ],
+    "ground_truth": {
+      "issue": "มี Business Logic เดียวกันซ้ำหลายตำแหน่ง",
+      "expected_fix": "แยก logic การคำนวณเป็น method/service ที่ใช้ร่วมกัน"
+    }
+  },
+  {
+    "test_case_id": "TC-CODE-010",
+    "category": "Coding",
+    "title": "Avoid Magic Values",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "if (retryCount >= 3)\n{\n    return;\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "CODE-010"
+    ],
+    "ground_truth": {
+      "issue": "ใช้ Magic Number โดยไม่มีชื่ออธิบายความหมาย",
+      "expected_fix": "ประกาศ const เช่น MaxRetryCount = 3 แล้วนำมาใช้"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-001",
+    "category": "Security",
+    "title": "Authentication Required",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpGet(\"profile\")]\npublic async Task<IActionResult> GetProfileAsync()\n{\n    return Ok(await _userService.GetProfileAsync(User));\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-001"
+    ],
+    "ground_truth": {
+      "issue": "Protected Endpoint ไม่มีการบังคับ Authentication",
+      "expected_fix": "เพิ่ม [Authorize] หรือกำหนด authorization policy ที่ endpoint/controller"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-002",
+    "category": "Security",
+    "title": "Authorization Required",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[Authorize]\n[HttpDelete(\"{id}\")]\npublic async Task<IActionResult> DeleteUserAsync(int id)\n{\n    await _userService.DeleteAsync(id);\n    return NoContent();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-002"
+    ],
+    "ground_truth": {
+      "issue": "Endpoint ที่มีข้อจำกัดตรวจเพียง Authentication แต่ไม่ตรวจ Authorization ตามสิทธิ์",
+      "expected_fix": "ใช้ Role/Policy-based Authorization เช่น [Authorize(Policy = \"CanManageUsers\")]"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-003",
+    "category": "Security",
+    "title": "Input Validation",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpPost]\npublic async Task<IActionResult> CreateUserAsync(CreateUserRequest request)\n{\n    await _userService.CreateAsync(request);\n    return Ok();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-003"
+    ],
+    "ground_truth": {
+      "issue": "นำข้อมูลจาก Request ไปประมวลผลโดยไม่มีการตรวจสอบความถูกต้อง",
+      "expected_fix": "เพิ่ม validation rules และปฏิเสธ request ที่ไม่ผ่าน validation"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-004",
+    "category": "Security",
+    "title": "Prevent SQL Injection",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "var sql = \"SELECT * FROM Users WHERE Name = '\" + request.Name + \"'\";\nvar users = await _db.Users.FromSqlRaw(sql).ToListAsync();",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-004"
+    ],
+    "ground_truth": {
+      "issue": "นำ User Input มาต่อ String เพื่อสร้าง SQL Query โดยตรง เสี่ยง SQL Injection",
+      "expected_fix": "ใช้ Parameterized Query หรือ ORM parameterization"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-005",
+    "category": "Security",
+    "title": "Parameterized Database Query",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "var sql = $\"SELECT * FROM Users WHERE Id = {id}\";\nvar user = await connection.QuerySingleOrDefaultAsync<User>(sql);",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-005"
+    ],
+    "ground_truth": {
+      "issue": "Database Query ที่รับค่าภายนอกไม่ได้ใช้ Parameterized Query",
+      "expected_fix": "ใช้ parameter เช่น WHERE Id = @Id และส่ง new { Id = id }"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-006",
+    "category": "Security",
+    "title": "No Hard-coded Secrets",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "private const string ApiKey = \"sk-prod-123456789\";",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-006"
+    ],
+    "ground_truth": {
+      "issue": "Hard-code API Key/Secret ไว้ใน Source Code",
+      "expected_fix": "อ่าน Secret จาก Configuration หรือ Secret Management"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-007",
+    "category": "Security",
+    "title": "Sensitive Data Logging",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "_logger.LogInformation(\"Login password={Password} token={Token}\", request.Password, accessToken);",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-007"
+    ],
+    "ground_truth": {
+      "issue": "บันทึก Password และ Access Token ลง Application Log",
+      "expected_fix": "ไม่ log sensitive data หรือ mask ข้อมูลก่อนบันทึก"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-008",
+    "category": "Security",
+    "title": "Do Not Expose Internal Errors",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "catch (Exception ex)\n{\n    return StatusCode(500, ex.ToString());\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-008"
+    ],
+    "ground_truth": {
+      "issue": "ส่งรายละเอียด Exception/Stack Trace กลับไปยัง Client",
+      "expected_fix": "Log รายละเอียดภายในและตอบ Generic Error Response"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-009",
+    "category": "Security",
+    "title": "JWT Validation",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "options.TokenValidationParameters = new TokenValidationParameters\n{\n    ValidateIssuerSigningKey = false,\n    ValidateLifetime = false,\n    ValidateIssuer = false,\n    ValidateAudience = false\n};",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-009"
+    ],
+    "ground_truth": {
+      "issue": "JWT Validation ปิดการตรวจ Signature/Lifetime/Issuer/Audience",
+      "expected_fix": "เปิด validation ที่จำเป็นตามนโยบายระบบ"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-010",
+    "category": "Security",
+    "title": "Resource-Level Authorization",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[Authorize]\n[HttpGet(\"{id}\")]\npublic async Task<IActionResult> GetUserAsync(int id)\n{\n    return Ok(await _userService.GetByIdAsync(id));\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-010"
+    ],
+    "ground_truth": {
+      "issue": "Endpoint รับ Resource ID แต่ไม่ตรวจ Ownership/Permission ของ Resource",
+      "expected_fix": "ตรวจ Resource-Level Authorization ก่อนอ่านข้อมูล"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-011",
+    "category": "Security",
+    "title": "Secure File Upload",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpPost(\"upload\")]\npublic async Task<IActionResult> UploadAsync(IFormFile file)\n{\n    await file.CopyToAsync(System.IO.File.Create(Path.Combine(_uploadDir, file.FileName)));\n    return Ok();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-011"
+    ],
+    "ground_truth": {
+      "issue": "รับ File Upload โดยไม่จำกัดประเภทและขนาดไฟล์",
+      "expected_fix": "ตรวจ allowlist ของ extension/content type และจำกัด file size ก่อนจัดเก็บ"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-012",
+    "category": "Security",
+    "title": "Prevent Path Traversal",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "var fullPath = Path.Combine(_uploadDirectory, request.FileName);\nreturn PhysicalFile(fullPath, \"application/octet-stream\");",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-012"
+    ],
+    "ground_truth": {
+      "issue": "นำ File Name จากผู้ใช้ไปสร้าง Path โดยไม่มีการตรวจสอบ เสี่ยง Path Traversal",
+      "expected_fix": "ใช้ Path.GetFileName และตรวจให้ path อยู่ใน directory ที่อนุญาต"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-013",
+    "category": "Security",
+    "title": "Sensitive Response Data",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "return Ok(new\n{\n    user.Id,\n    user.DisplayName,\n    user.PasswordHash,\n    user.ApiSecret\n});",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-013"
+    ],
+    "ground_truth": {
+      "issue": "API Response เปิดเผยข้อมูลสำคัญที่ Client ไม่จำเป็นต้องได้รับ",
+      "expected_fix": "ใช้ Response DTO และส่งเฉพาะ field ที่จำเป็น"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-014",
+    "category": "Security",
+    "title": "CORS Restriction",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "builder.Services.AddCors(options =>\n{\n    options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());\n});",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-014"
+    ],
+    "ground_truth": {
+      "issue": "CORS เปิด AllowAnyOrigin โดยไม่จำเป็น",
+      "expected_fix": "กำหนด allowlist ของ Origin ที่ได้รับอนุญาต"
+    }
+  },
+  {
+    "test_case_id": "TC-SEC-015",
+    "category": "Security",
+    "title": "Secret Management",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "var connectionString = \"Server=db;Database=app;User Id=admin;Password=P@ssw0rd!;\";",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "SEC-015"
+    ],
+    "ground_truth": {
+      "issue": "Credential ถูกฝังอยู่ใน Source Code แทน Secret Management/Configuration",
+      "expected_fix": "เรียก Connection String ผ่าน Configuration/Secret Management"
+    }
+  },
+  {
+    "test_case_id": "TC-API-001",
+    "category": "API",
+    "title": "HTTP Method Convention",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpGet(\"delete/{id}\")]\npublic async Task<IActionResult> DeleteUserAsync(int id)\n{\n    await _userService.DeleteAsync(id);\n    return Ok();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-001"
+    ],
+    "ground_truth": {
+      "issue": "ใช้ HTTP GET สำหรับการลบ Resource",
+      "expected_fix": "ใช้ HTTP DELETE สำหรับ operation ลบ resource"
+    }
+  },
+  {
+    "test_case_id": "TC-API-002",
+    "category": "API",
+    "title": "HTTP Status Code",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpGet(\"{id}\")]\npublic async Task<IActionResult> GetUserAsync(int id)\n{\n    var user = await _userService.GetByIdAsync(id);\n    if (user is null) return Ok(\"User not found\");\n    return Ok(user);\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-002"
+    ],
+    "ground_truth": {
+      "issue": "กรณีไม่พบ Resource แต่ตอบ HTTP 200",
+      "expected_fix": "ตอบ 404 NotFound เมื่อไม่พบ resource"
+    }
+  },
+  {
+    "test_case_id": "TC-API-003",
+    "category": "API",
+    "title": "Resource Creation Response",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpPost]\npublic async Task<IActionResult> CreateUserAsync(CreateUserRequest request)\n{\n    var user = await _userService.CreateAsync(request);\n    return Ok(user);\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-003"
+    ],
+    "ground_truth": {
+      "issue": "สร้าง Resource สำเร็จแต่ตอบ 200 OK แทน 201 Created ตามมาตรฐาน",
+      "expected_fix": "ใช้ Created หรือ CreatedAtAction"
+    }
+  },
+  {
+    "test_case_id": "TC-API-004",
+    "category": "API",
+    "title": "Use Request and Response DTO",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpPost]\npublic async Task<IActionResult> CreateUserAsync(UserEntity user)\n{\n    _db.Users.Add(user);\n    await _db.SaveChangesAsync();\n    return Ok(user);\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-004"
+    ],
+    "ground_truth": {
+      "issue": "API ใช้ Persistence Entity เป็น Request/Response โดยตรง",
+      "expected_fix": "สร้าง Request DTO และ Response DTO แยกจาก Entity"
+    }
+  },
+  {
+    "test_case_id": "TC-API-005",
+    "category": "API",
+    "title": "Standard Error Response",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "if (!ModelState.IsValid)\n{\n    return BadRequest(\"invalid data\");\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-005"
+    ],
+    "ground_truth": {
+      "issue": "Error Response ไม่ใช้โครงสร้างมาตรฐานของระบบ",
+      "expected_fix": "ใช้ ProblemDetails หรือ Error Response Schema มาตรฐาน"
+    }
+  },
+  {
+    "test_case_id": "TC-API-006",
+    "category": "API",
+    "title": "Request Model Validation",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public sealed class CreateUserRequest\n{\n    public string Name { get; set; } = string.Empty;\n}\n\n[HttpPost]\npublic async Task<IActionResult> CreateAsync(CreateUserRequest request)\n{\n    await _userService.CreateAsync(request);\n    return Ok();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-006"
+    ],
+    "ground_truth": {
+      "issue": "Request Model ไม่มี Validation Rules ก่อนนำไปดำเนินการ",
+      "expected_fix": "กำหนด validation เช่น [Required] หรือ validator ตามมาตรฐาน"
+    }
+  },
+  {
+    "test_case_id": "TC-API-007",
+    "category": "API",
+    "title": "Route Naming Convention",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[Route(\"api/GetAllUsers\")]\npublic class UsersController : ControllerBase\n{\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-007"
+    ],
+    "ground_truth": {
+      "issue": "Route ใช้ชื่อ operation แทน Resource Naming Convention",
+      "expected_fix": "ใช้ route ที่สม่ำเสมอ เช่น api/users"
+    }
+  },
+  {
+    "test_case_id": "TC-API-008",
+    "category": "API",
+    "title": "API Versioning",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[Route(\"api/users\")]\npublic class UsersController : ControllerBase\n{\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-008"
+    ],
+    "ground_truth": {
+      "issue": "Public API ไม่มีการกำหนด Version ตามมาตรฐาน",
+      "expected_fix": "กำหนด API version เช่น api/v{version:apiVersion}/users"
+    }
+  },
+  {
+    "test_case_id": "TC-API-009",
+    "category": "API",
+    "title": "Minimize Response Data",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpGet]\npublic async Task<IActionResult> GetUsersAsync()\n{\n    var users = await _db.Users.ToListAsync();\n    return Ok(users);\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-009"
+    ],
+    "ground_truth": {
+      "issue": "Response ส่งข้อมูล Entity ทั้งหมดและอาจมี field ที่ Client ไม่จำเป็นต้องใช้",
+      "expected_fix": "ใช้ Response DTO ที่มีเฉพาะ field ที่จำเป็น"
+    }
+  },
+  {
+    "test_case_id": "TC-API-010",
+    "category": "API",
+    "title": "Pagination",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpGet]\npublic async Task<IActionResult> GetUsersAsync()\n{\n    return Ok(await _userService.GetAllAsync());\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "API-010"
+    ],
+    "ground_truth": {
+      "issue": "Endpoint รายการข้อมูลจำนวนมากไม่มี Pagination",
+      "expected_fix": "เพิ่ม page/pageSize หรือ pagination mechanism"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-001",
+    "category": "Architecture",
+    "title": "No Business Logic in Controller",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpPost(\"orders\")]\npublic IActionResult CreateOrder(CreateOrderRequest request)\n{\n    var total = request.Items.Sum(x => x.Price * x.Quantity);\n    if (total > 10000) total *= 0.9m;\n    return Ok(new { total });\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-001"
+    ],
+    "ground_truth": {
+      "issue": "Controller มี Business Logic หลักของระบบ",
+      "expected_fix": "ย้าย business rules ไป Service/Application Layer"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-002",
+    "category": "Architecture",
+    "title": "Business Logic in Service Layer",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class OrdersController : ControllerBase\n{\n    public decimal CalculateDiscount(decimal total)\n    {\n        return total > 10000 ? total * 0.10m : 0;\n    }\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-002"
+    ],
+    "ground_truth": {
+      "issue": "Business Logic ถูกวางไว้นอก Service/Application Layer",
+      "expected_fix": "ย้าย logic การคำนวณไป Service/Application Layer"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-003",
+    "category": "Architecture",
+    "title": "Data Access Separation",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UserService\n{\n    private readonly AppDbContext _db;\n    public Task<User?> GetAsync(int id) => _db.Users.FindAsync(id).AsTask();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-003"
+    ],
+    "ground_truth": {
+      "issue": "Business Service เข้าถึง persistence โดยตรงแทน Data Access Layer ตาม pattern ที่กำหนด",
+      "expected_fix": "แยก Data Access ไป Repository/Infrastructure Layer"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-004",
+    "category": "Architecture",
+    "title": "Controller Dependency Injection",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UsersController : ControllerBase\n{\n    private readonly IUserService _service;\n    public UsersController()\n    {\n        _service = ServiceLocator.Get<IUserService>();\n    }\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-004"
+    ],
+    "ground_truth": {
+      "issue": "Controller ไม่ได้รับ Service Dependency ผ่าน DI constructor",
+      "expected_fix": "Inject IUserService ผ่าน constructor"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-005",
+    "category": "Architecture",
+    "title": "No Direct Database Access from Controller",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UsersController : ControllerBase\n{\n    private readonly AppDbContext _db;\n    public UsersController(AppDbContext db) => _db = db;\n\n    [HttpGet(\"{id}\")]\n    public async Task<IActionResult> GetAsync(int id) => Ok(await _db.Users.FindAsync(id));\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-005"
+    ],
+    "ground_truth": {
+      "issue": "Controller เข้าถึง Database/DbContext โดยตรง",
+      "expected_fix": "ให้ Controller เรียก Service และย้าย data access ไป layer ที่กำหนด"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-006",
+    "category": "Architecture",
+    "title": "Model Separation",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class User\n{\n    public int Id { get; set; }\n    public string PasswordHash { get; set; } = string.Empty;\n}\n\n[HttpGet(\"{id}\")]\npublic async Task<User> GetAsync(int id) => await _db.Users.FindAsync(id);",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-006"
+    ],
+    "ground_truth": {
+      "issue": "ใช้ Persistence Model เป็น API/Domain Model โดยไม่แยก Responsibility",
+      "expected_fix": "แยก DTO, Domain Model และ Persistence Model พร้อม mapping"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-007",
+    "category": "Architecture",
+    "title": "Layer Dependency Direction",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UserService\n{\n    private readonly SqlUserRepository _repository;\n    public UserService(SqlUserRepository repository) => _repository = repository;\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-007"
+    ],
+    "ground_truth": {
+      "issue": "Service/Application Layer ขึ้นกับ Infrastructure implementation โดยตรง",
+      "expected_fix": "ให้ layer ภายในขึ้นกับ abstraction เช่น IUserRepository"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-008",
+    "category": "Architecture",
+    "title": "Centralized Cross-Cutting Concerns",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "[HttpGet(\"{id}\")]\npublic async Task<IActionResult> GetAsync(int id)\n{\n    try\n    {\n        return Ok(await _userService.GetByIdAsync(id));\n    }\n    catch (Exception ex)\n    {\n        _logger.LogError(ex, \"Get failed\");\n        return StatusCode(500);\n    }\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-008"
+    ],
+    "ground_truth": {
+      "issue": "Cross-cutting concern เช่น Exception Handling ถูกทำซ้ำใน Controller แทนจัดการส่วนกลาง",
+      "expected_fix": "ใช้ Middleware/Filter/Component ส่วนกลาง"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-009",
+    "category": "Architecture",
+    "title": "Externalize Configuration",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class PaymentService\n{\n    private readonly string _paymentUrl = \"https://payment.example.com/api\";\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-009"
+    ],
+    "ground_truth": {
+      "issue": "Configuration ถูกฝังอยู่ใน Business Logic/Source Code",
+      "expected_fix": "ย้ายค่าไป Configuration Provider หรือ IOptions"
+    }
+  },
+  {
+    "test_case_id": "TC-ARCH-010",
+    "category": "Architecture",
+    "title": "Single Responsibility",
+    "language": "C#",
+    "framework": ".NET Web API",
+    "source_code": "public class UserService\n{\n    public Task<User?> GetUserAsync(int id) => _repository.GetByIdAsync(id);\n    public Task SendEmailAsync(string email) => _emailSender.SendAsync(email);\n    public Task GenerateReportAsync() => _reportGenerator.GenerateAsync();\n}",
+    "has_violation": true,
+    "expected_rule_ids": [
+      "ARCH-010"
+    ],
+    "ground_truth": {
+      "issue": "Service เดียวรับผิดชอบหลายหน้าที่ที่ไม่เกี่ยวข้องกัน",
+      "expected_fix": "แยก UserService, EmailService และ ReportService ตาม Single Responsibility"
+    }
+  }
+]

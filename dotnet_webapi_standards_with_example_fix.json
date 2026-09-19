@@ -1,0 +1,825 @@
+[
+  {
+    "rule_id": "CODE-001",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "C# Naming Convention",
+    "description": "Class, Method และ Property ต้องตั้งชื่อตาม C# Naming Convention และมาตรฐานที่องค์กรกำหนด",
+    "severity": "Medium",
+    "keywords": [
+      "naming",
+      "class",
+      "method",
+      "property",
+      "PascalCase",
+      "C#"
+    ],
+    "recommendation": "ปรับชื่อ Class, Method และ Property ให้เป็นไปตาม Naming Convention ขององค์กร",
+    "example_fix": "public class UserService { public string DisplayName { get; set; } = string.Empty; }",
+    "embedding_text": "CODE-001 Coding C# Naming Convention Class Method Property PascalCase .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-002",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Async Method Naming",
+    "description": "Method ที่ทำงานแบบ asynchronous ควรลงท้ายชื่อด้วย Async",
+    "severity": "Low",
+    "keywords": [
+      "async",
+      "await",
+      "Task",
+      "method naming"
+    ],
+    "recommendation": "เพิ่ม Async ต่อท้ายชื่อ Method ที่ทำงานแบบ asynchronous",
+    "example_fix": "public async Task<UserDto> GetUserAsync(int id) { return await _userService.GetByIdAsync(id); }",
+    "embedding_text": "CODE-002 Coding asynchronous async await Task method naming ต้องลงท้ายด้วย Async .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-003",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Avoid Async Void",
+    "description": "ห้ามใช้ async void ยกเว้นกรณีที่เป็น Event Handler",
+    "severity": "High",
+    "keywords": [
+      "async void",
+      "Task",
+      "asynchronous"
+    ],
+    "recommendation": "เปลี่ยน async void เป็น async Task ยกเว้น Event Handler",
+    "example_fix": "public async Task ProcessUserAsync() { await _userService.ProcessAsync(); }",
+    "embedding_text": "CODE-003 Coding ห้ามใช้ async void ให้ใช้ async Task ยกเว้น Event Handler .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-004",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Dependency Injection",
+    "description": "Service Dependency ต้องถูกจัดการผ่าน Dependency Injection",
+    "severity": "Medium",
+    "keywords": [
+      "dependency injection",
+      "DI",
+      "service",
+      "constructor"
+    ],
+    "recommendation": "ลงทะเบียน Service ใน DI Container และรับ Dependency ผ่าน Constructor",
+    "example_fix": "public UsersController(IUserService userService) { _userService = userService; }",
+    "embedding_text": "CODE-004 Coding Dependency Injection DI Service Constructor .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-005",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Avoid Direct Service Instantiation",
+    "description": "หลีกเลี่ยงการสร้าง Service Dependency ด้วย new ภายใน Controller",
+    "severity": "Medium",
+    "keywords": [
+      "new service",
+      "controller",
+      "dependency",
+      "DI"
+    ],
+    "recommendation": "ใช้ Dependency Injection แทนการสร้าง Service ด้วย new ภายใน Controller",
+    "example_fix": "public UsersController(IUserService userService) { _userService = userService; }",
+    "embedding_text": "CODE-005 Coding หลีกเลี่ยง new Service ภายใน Controller ใช้ Dependency Injection .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-006",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Exception Handling",
+    "description": "Exception ต้องได้รับการจัดการอย่างเหมาะสมและไม่ควรถูกละเลยโดยไม่มีการควบคุม",
+    "severity": "High",
+    "keywords": [
+      "exception",
+      "try",
+      "catch",
+      "error handling"
+    ],
+    "recommendation": "จัดการ Exception ในระดับที่เหมาะสมหรือใช้ Global Exception Handler",
+    "example_fix": "try { await _userService.ProcessAsync(); } catch (Exception ex) { _logger.LogError(ex, \"Process failed\"); throw; }",
+    "embedding_text": "CODE-006 Coding Exception Handling try catch Global Exception Handler .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-007",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "No Empty Catch Block",
+    "description": "ห้ามใช้ Catch Block ที่ไม่มีการจัดการ Exception",
+    "severity": "High",
+    "keywords": [
+      "catch",
+      "empty catch",
+      "exception"
+    ],
+    "recommendation": "จัดการหรือบันทึก Exception อย่างเหมาะสมแทนการใช้ Empty Catch Block",
+    "example_fix": "catch (Exception ex) { _logger.LogError(ex, \"Process failed\"); throw; }",
+    "embedding_text": "CODE-007 Coding ห้าม Empty Catch Block ต้องจัดการ Exception .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-008",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Structured Logging",
+    "description": "ระบบต้องใช้ Structured Logging แทน Console.WriteLine สำหรับ Application Logging",
+    "severity": "Medium",
+    "keywords": [
+      "logging",
+      "ILogger",
+      "Console.WriteLine",
+      "structured logging"
+    ],
+    "recommendation": "ใช้ ILogger และ Structured Logging",
+    "example_fix": "_logger.LogInformation(\"Getting user: {UserId}\", id);",
+    "embedding_text": "CODE-008 Coding Structured Logging ILogger หลีกเลี่ยง Console.WriteLine .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-009",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Avoid Duplicate Logic",
+    "description": "หลีกเลี่ยงการเขียน Business Logic ซ้ำในหลายตำแหน่ง",
+    "severity": "Medium",
+    "keywords": [
+      "duplicate code",
+      "business logic",
+      "DRY",
+      "refactoring"
+    ],
+    "recommendation": "แยก Logic ที่ใช้ร่วมกันเป็น Method หรือ Service ที่สามารถนำกลับมาใช้ได้",
+    "example_fix": "private decimal CalculateTotal(Order order) => order.Items.Sum(x => x.Price * x.Quantity);",
+    "embedding_text": "CODE-009 Coding หลีกเลี่ยง Duplicate Business Logic DRY Refactoring .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "CODE-010",
+    "category": "Coding",
+    "technology": ".NET Web API",
+    "title": "Avoid Magic Values",
+    "description": "หลีกเลี่ยง Magic Number และ Magic String ที่ไม่มีความหมายชัดเจนใน Source Code",
+    "severity": "Low",
+    "keywords": [
+      "magic number",
+      "magic string",
+      "constant",
+      "configuration"
+    ],
+    "recommendation": "ใช้ Constant, Enum หรือ Configuration แทนค่าที่ Hard-code โดยไม่มีคำอธิบาย",
+    "example_fix": "private const int MaxRetryCount = 3; if (retryCount >= MaxRetryCount) { return; }",
+    "embedding_text": "CODE-010 Coding หลีกเลี่ยง Magic Number Magic String ใช้ Constant Enum Configuration .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-001",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Authentication Required",
+    "description": "API Endpoint ที่เป็น Protected Resource ต้องตรวจสอบ Authentication",
+    "severity": "Critical",
+    "keywords": [
+      "authentication",
+      "Authorize",
+      "JWT",
+      "identity"
+    ],
+    "recommendation": "กำหนด Authentication และใช้ Authorize สำหรับ Protected Endpoint",
+    "example_fix": "[Authorize]\n[HttpGet(\"{id}\")]\npublic async Task<IActionResult> GetUserAsync(int id) { return Ok(await _userService.GetByIdAsync(id)); }",
+    "embedding_text": "SEC-001 Security Protected API Endpoint Authentication Authorize JWT .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-002",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Authorization Required",
+    "description": "ระบบต้องตรวจสอบ Authorization ก่อนอนุญาตให้ผู้ใช้เข้าถึง Resource หรือดำเนินการที่มีข้อจำกัด",
+    "severity": "Critical",
+    "keywords": [
+      "authorization",
+      "role",
+      "policy",
+      "permission",
+      "Authorize"
+    ],
+    "recommendation": "ใช้ Role หรือ Policy-based Authorization ตามสิทธิ์ที่กำหนด",
+    "example_fix": "[Authorize(Policy = \"CanManageUsers\")]\n[HttpDelete(\"{id}\")]\npublic async Task<IActionResult> DeleteUserAsync(int id) { await _userService.DeleteAsync(id); return NoContent(); }",
+    "embedding_text": "SEC-002 Security Authorization Role Policy Permission Protected Resource .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-003",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Input Validation",
+    "description": "ข้อมูลจาก Request ต้องได้รับการตรวจสอบความถูกต้องก่อนนำไปประมวลผล",
+    "severity": "High",
+    "keywords": [
+      "input validation",
+      "request",
+      "validation",
+      "model"
+    ],
+    "recommendation": "ตรวจสอบ Request ด้วย Validation ก่อนเข้าสู่ Business Logic",
+    "example_fix": "if (!ModelState.IsValid) { return BadRequest(ModelState); } await _userService.CreateAsync(request);",
+    "embedding_text": "SEC-003 Security Input Validation Request Model Validation ก่อนประมวลผล .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-004",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Prevent SQL Injection",
+    "description": "ห้ามนำข้อมูลจากผู้ใช้มาต่อ String เพื่อสร้าง SQL Query โดยตรง",
+    "severity": "Critical",
+    "keywords": [
+      "SQL injection",
+      "SQL",
+      "string concatenation",
+      "raw SQL"
+    ],
+    "recommendation": "ใช้ Parameterized Query หรือ ORM ที่รองรับ Parameter อย่างปลอดภัย",
+    "example_fix": "var user = await _db.Users.FromSqlInterpolated($\"SELECT * FROM Users WHERE Id = {id}\").SingleOrDefaultAsync();",
+    "embedding_text": "SEC-004 Security SQL Injection ห้ามต่อ SQL String จาก User Input ใช้ Parameterized Query ORM .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-005",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Parameterized Database Query",
+    "description": "Database Query ที่รับข้อมูลภายนอกต้องใช้ Parameterized Query หรือ API ของ ORM ที่ปลอดภัย",
+    "severity": "Critical",
+    "keywords": [
+      "parameterized query",
+      "Entity Framework",
+      "Dapper",
+      "SQL"
+    ],
+    "recommendation": "ส่งค่าผ่าน Parameter แทนการประกอบ SQL String",
+    "example_fix": "const string sql = \"SELECT * FROM Users WHERE Id = @Id\"; var user = await connection.QuerySingleOrDefaultAsync<User>(sql, new { Id = id });",
+    "embedding_text": "SEC-005 Security Parameterized Query Entity Framework Dapper SQL Parameter .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-006",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "No Hard-coded Secrets",
+    "description": "ห้าม Hard-code Password, API Key, Access Token หรือ Secret ใน Source Code",
+    "severity": "Critical",
+    "keywords": [
+      "password",
+      "API key",
+      "token",
+      "secret",
+      "hardcoded"
+    ],
+    "recommendation": "จัดเก็บ Secret ในระบบ Configuration หรือ Secret Management ที่ได้รับอนุมัติ",
+    "example_fix": "var apiKey = configuration[\"ExternalApi:ApiKey\"];",
+    "embedding_text": "SEC-006 Security ห้าม Hard-code Password API Key Token Secret Source Code .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-007",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Sensitive Data Logging",
+    "description": "ห้ามบันทึก Password, Access Token, Secret หรือข้อมูลสำคัญลง Application Log",
+    "severity": "Critical",
+    "keywords": [
+      "logging",
+      "password",
+      "token",
+      "PII",
+      "sensitive data"
+    ],
+    "recommendation": "Mask หรือไม่นำ Sensitive Data ไปบันทึกใน Log",
+    "example_fix": "_logger.LogInformation(\"Login attempt for user {UserId}\", user.Id);",
+    "embedding_text": "SEC-007 Security ห้าม Log Password Token Secret Sensitive Data PII .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-008",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Do Not Expose Internal Errors",
+    "description": "API ต้องไม่ส่ง Stack Trace หรือรายละเอียดระบบภายในกลับไปยัง Client",
+    "severity": "High",
+    "keywords": [
+      "stack trace",
+      "exception",
+      "error response",
+      "information disclosure"
+    ],
+    "recommendation": "ใช้ Generic Error Response และบันทึกรายละเอียด Error ไว้ภายในระบบ",
+    "example_fix": "catch (Exception ex) { _logger.LogError(ex, \"Unexpected error\"); return Problem(statusCode: 500, title: \"An unexpected error occurred\"); }",
+    "embedding_text": "SEC-008 Security ห้ามส่ง Stack Trace Internal Error Exception Detail ให้ Client .NET API",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-009",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "JWT Validation",
+    "description": "JWT ต้องได้รับการตรวจสอบ Signature และค่าที่จำเป็นตามนโยบายของระบบ",
+    "severity": "Critical",
+    "keywords": [
+      "JWT",
+      "signature",
+      "issuer",
+      "audience",
+      "expiration"
+    ],
+    "recommendation": "กำหนด Token Validation Parameters ให้ตรวจสอบ Signature, Lifetime, Issuer และ Audience ตามนโยบาย",
+    "example_fix": "options.TokenValidationParameters = new TokenValidationParameters { ValidateIssuerSigningKey = true, ValidateLifetime = true, ValidateIssuer = true, ValidateAudience = true };",
+    "embedding_text": "SEC-009 Security JWT Validation Signature Lifetime Issuer Audience Token .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-010",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Resource-Level Authorization",
+    "description": "Endpoint ที่รับ Resource ID ต้องตรวจสอบว่าผู้ใช้มีสิทธิ์เข้าถึง Resource นั้น",
+    "severity": "Critical",
+    "keywords": [
+      "IDOR",
+      "resource authorization",
+      "object authorization",
+      "resource id"
+    ],
+    "recommendation": "ตรวจสอบ Ownership หรือ Permission ของ Resource ก่อนอ่านหรือแก้ไขข้อมูล",
+    "example_fix": "if (!await _authorizationService.CanAccessUserAsync(User, id)) { return Forbid(); } var user = await _userService.GetByIdAsync(id);",
+    "embedding_text": "SEC-010 Security Resource Level Authorization IDOR Ownership Permission Resource ID .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-011",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Secure File Upload",
+    "description": "File Upload ต้องจำกัดประเภท ขนาด และตรวจสอบข้อมูลไฟล์ตามนโยบายระบบ",
+    "severity": "High",
+    "keywords": [
+      "file upload",
+      "file size",
+      "extension",
+      "content type"
+    ],
+    "recommendation": "กำหนด Allowlist ของประเภทไฟล์และจำกัดขนาดไฟล์ก่อนจัดเก็บ",
+    "example_fix": "var ext = Path.GetExtension(file.FileName).ToLowerInvariant(); if (!allowedExtensions.Contains(ext) || file.Length > maxFileSize) return BadRequest();",
+    "embedding_text": "SEC-011 Security File Upload ตรวจสอบ File Type Content Type Extension Size .NET API",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-012",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Prevent Path Traversal",
+    "description": "ห้ามนำข้อมูล File Path หรือ File Name จากผู้ใช้ไปใช้งานโดยไม่มีการตรวจสอบ",
+    "severity": "Critical",
+    "keywords": [
+      "path traversal",
+      "file path",
+      "filename",
+      "directory"
+    ],
+    "recommendation": "Validate File Name และจำกัด Path ให้อยู่ภายใน Directory ที่ระบบอนุญาต",
+    "example_fix": "var safeFileName = Path.GetFileName(request.FileName); var fullPath = Path.Combine(uploadDirectory, safeFileName);",
+    "embedding_text": "SEC-012 Security Path Traversal File Path Filename Directory User Input .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-013",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Sensitive Response Data",
+    "description": "API Response ต้องไม่เปิดเผยข้อมูลสำคัญหรือข้อมูลที่ Client ไม่จำเป็นต้องได้รับ",
+    "severity": "High",
+    "keywords": [
+      "API response",
+      "sensitive data",
+      "password",
+      "secret",
+      "data exposure"
+    ],
+    "recommendation": "ใช้ Response DTO และส่งเฉพาะ Field ที่จำเป็น",
+    "example_fix": "return Ok(new UserResponseDto { Id = user.Id, DisplayName = user.DisplayName });",
+    "embedding_text": "SEC-013 Security API Response ห้ามเปิดเผย Sensitive Data ใช้ Response DTO .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-014",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "CORS Restriction",
+    "description": "CORS ต้องกำหนด Origin ตามนโยบายระบบและไม่เปิดกว้างโดยไม่จำเป็น",
+    "severity": "High",
+    "keywords": [
+      "CORS",
+      "origin",
+      "AllowAnyOrigin",
+      "cross origin"
+    ],
+    "recommendation": "กำหนด Allowlist ของ Origin ที่ได้รับอนุญาต",
+    "example_fix": "policy.WithOrigins(\"https://app.example.com\").AllowAnyHeader().AllowAnyMethod();",
+    "embedding_text": "SEC-014 Security CORS Origin AllowAnyOrigin Allowlist .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "SEC-015",
+    "category": "Security",
+    "technology": ".NET Web API",
+    "title": "Secret Management",
+    "description": "Credential และ Secret ต้องจัดเก็บและเรียกใช้ผ่านกลไก Configuration หรือ Secret Management ที่องค์กรกำหนด",
+    "severity": "Critical",
+    "keywords": [
+      "secret management",
+      "credential",
+      "configuration",
+      "key vault"
+    ],
+    "recommendation": "ใช้ Secret Management หรือ Environment Configuration ตามมาตรฐานองค์กร",
+    "example_fix": "var connectionString = configuration.GetConnectionString(\"DefaultConnection\");",
+    "embedding_text": "SEC-015 Security Secret Management Credential Configuration Key Vault Environment .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-001",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "HTTP Method Convention",
+    "description": "API ต้องใช้ HTTP Method ให้สอดคล้องกับการดำเนินการกับ Resource",
+    "severity": "Medium",
+    "keywords": [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "REST"
+    ],
+    "recommendation": "เลือก GET, POST, PUT, PATCH หรือ DELETE ให้ตรงกับความหมายของ Operation",
+    "example_fix": "[HttpDelete(\"{id}\")]\npublic async Task<IActionResult> DeleteUserAsync(int id) { await _userService.DeleteAsync(id); return NoContent(); }",
+    "embedding_text": "API-001 REST HTTP Method GET POST PUT PATCH DELETE Resource .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-002",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "HTTP Status Code",
+    "description": "API ต้องตอบ HTTP Status Code ให้สอดคล้องกับผลการประมวลผล",
+    "severity": "Medium",
+    "keywords": [
+      "status code",
+      "200",
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "500"
+    ],
+    "recommendation": "กำหนด Status Code ให้สื่อความหมายของผลลัพธ์อย่างถูกต้อง",
+    "example_fix": "if (user is null) { return NotFound(); } return Ok(user);",
+    "embedding_text": "API-002 REST HTTP Status Code 200 201 400 401 403 404 500 .NET API",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-003",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Resource Creation Response",
+    "description": "API สำหรับสร้าง Resource สำเร็จควรตอบ HTTP 201 Created ตามมาตรฐานองค์กร",
+    "severity": "Low",
+    "keywords": [
+      "POST",
+      "201",
+      "Created",
+      "CreatedAtAction"
+    ],
+    "recommendation": "ใช้ 201 Created หรือ CreatedAtAction สำหรับการสร้าง Resource",
+    "example_fix": "return CreatedAtAction(nameof(GetUserAsync), new { id = user.Id }, user);",
+    "embedding_text": "API-003 POST Create Resource HTTP 201 Created CreatedAtAction .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-004",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Use Request and Response DTO",
+    "description": "Request และ Response ของ API ต้องใช้ DTO แยกจาก Persistence Entity ตามมาตรฐาน Architecture",
+    "severity": "Medium",
+    "keywords": [
+      "DTO",
+      "request",
+      "response",
+      "entity",
+      "model"
+    ],
+    "recommendation": "สร้าง Request DTO และ Response DTO แยกจาก Database Entity",
+    "example_fix": "public sealed class UserResponseDto { public int Id { get; set; } public string Name { get; set; } = string.Empty; }",
+    "embedding_text": "API-004 API Request Response DTO แยก Database Entity Persistence Model .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-005",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Standard Error Response",
+    "description": "API Error Response ต้องใช้โครงสร้างมาตรฐานเดียวกันทั้งระบบ",
+    "severity": "Medium",
+    "keywords": [
+      "error response",
+      "ProblemDetails",
+      "exception",
+      "API error"
+    ],
+    "recommendation": "ใช้ Error Response Schema หรือ ProblemDetails ตามมาตรฐานองค์กร",
+    "example_fix": "return Problem(statusCode: 400, title: \"Invalid request\", detail: \"One or more validation errors occurred.\");",
+    "embedding_text": "API-005 Standard Error Response ProblemDetails Exception API Error .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-006",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Request Model Validation",
+    "description": "Request Model ต้องได้รับการ Validation ก่อนนำไปดำเนินการ",
+    "severity": "High",
+    "keywords": [
+      "ModelState",
+      "validation",
+      "request",
+      "DataAnnotations"
+    ],
+    "recommendation": "กำหนด Validation Rules ให้ Request Model และปฏิเสธ Request ที่ไม่ถูกต้อง",
+    "example_fix": "public sealed class CreateUserRequest { [Required] public string Name { get; set; } = string.Empty; }",
+    "embedding_text": "API-006 API Request Model Validation ModelState DataAnnotations .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-007",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Route Naming Convention",
+    "description": "API Route และ Resource Naming ต้องเป็นไปตาม Convention ที่องค์กรกำหนด",
+    "severity": "Low",
+    "keywords": [
+      "route",
+      "resource",
+      "URL",
+      "REST naming"
+    ],
+    "recommendation": "กำหนด Route ให้สม่ำเสมอและสื่อถึง Resource อย่างชัดเจน",
+    "example_fix": "[Route(\"api/users\")]\npublic class UsersController : ControllerBase { [HttpGet(\"{id}\")] public async Task<IActionResult> GetUserAsync(int id) { /* ... */ } }",
+    "embedding_text": "API-007 REST Route Resource URL Naming Convention .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-008",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "API Versioning",
+    "description": "Public API ต้องรองรับ Versioning ตามแนวทางที่องค์กรกำหนด",
+    "severity": "Medium",
+    "keywords": [
+      "API versioning",
+      "version",
+      "v1",
+      "v2"
+    ],
+    "recommendation": "กำหนด API Version อย่างชัดเจนเพื่อรองรับการเปลี่ยนแปลงในอนาคต",
+    "example_fix": "[ApiVersion(\"1.0\")]\n[Route(\"api/v{version:apiVersion}/users\")]\npublic class UsersController : ControllerBase { }",
+    "embedding_text": "API-008 API Versioning Version v1 v2 .NET Web API",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-009",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Minimize Response Data",
+    "description": "API ควรส่งเฉพาะข้อมูลที่จำเป็นต่อ Client และหลีกเลี่ยง Over-fetching",
+    "severity": "Medium",
+    "keywords": [
+      "response",
+      "DTO",
+      "over-fetching",
+      "data exposure"
+    ],
+    "recommendation": "กำหนด Response DTO ให้มีเฉพาะ Field ที่ Client จำเป็นต้องใช้งาน",
+    "example_fix": "return Ok(users.Select(x => new UserResponseDto { Id = x.Id, DisplayName = x.DisplayName }));",
+    "embedding_text": "API-009 API Response DTO ส่งเฉพาะข้อมูลจำเป็น Over-fetching .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "API-010",
+    "category": "API",
+    "technology": ".NET Web API",
+    "title": "Pagination",
+    "description": "Endpoint ที่คืนข้อมูลจำนวนมากต้องรองรับ Pagination ตามมาตรฐานระบบ",
+    "severity": "Medium",
+    "keywords": [
+      "pagination",
+      "page",
+      "pageSize",
+      "list",
+      "collection"
+    ],
+    "recommendation": "กำหนด Page, PageSize หรือ Pagination Mechanism สำหรับข้อมูลแบบ Collection",
+    "example_fix": "public async Task<IActionResult> GetUsersAsync(int page = 1, int pageSize = 20) { return Ok(await _userService.GetPagedAsync(page, pageSize)); }",
+    "embedding_text": "API-010 API Pagination Page PageSize Collection Large Dataset .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-001",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "No Business Logic in Controller",
+    "description": "Controller ไม่ควรมี Business Logic ที่เป็นกฎการทำงานหลักของระบบ",
+    "severity": "High",
+    "keywords": [
+      "controller",
+      "business logic",
+      "service layer",
+      "separation of concerns"
+    ],
+    "recommendation": "ย้าย Business Logic ไปยัง Service Layer",
+    "example_fix": "public async Task<IActionResult> CreateOrderAsync(CreateOrderRequest request) { return Ok(await _orderService.CreateAsync(request)); }",
+    "embedding_text": "ARCH-001 Architecture Controller ห้ามมี Business Logic ย้ายไป Service Layer .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-002",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Business Logic in Service Layer",
+    "description": "Business Logic ต้องถูกจัดวางใน Service หรือ Application Layer ตาม Architecture ขององค์กร",
+    "severity": "Medium",
+    "keywords": [
+      "service layer",
+      "business logic",
+      "application layer"
+    ],
+    "recommendation": "จัดวาง Business Logic ใน Service หรือ Application Layer",
+    "example_fix": "public async Task<OrderDto> CreateAsync(CreateOrderRequest request) { return await _repository.CreateAsync(request); }",
+    "embedding_text": "ARCH-002 Architecture Business Logic Service Layer Application Layer .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-003",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Data Access Separation",
+    "description": "การเข้าถึงข้อมูลต้องถูกแยกออกจาก Controller และ Business Logic ตาม Data Access Pattern ที่องค์กรกำหนด",
+    "severity": "Medium",
+    "keywords": [
+      "repository",
+      "data access",
+      "database",
+      "persistence"
+    ],
+    "recommendation": "แยก Data Access Responsibility ไปยัง Repository หรือ Infrastructure Layer",
+    "example_fix": "public Task<User?> GetByIdAsync(int id) { return _db.Users.FindAsync(id).AsTask(); }",
+    "embedding_text": "ARCH-003 Architecture Data Access Repository Persistence Infrastructure Database .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-004",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Controller Dependency Injection",
+    "description": "Controller ต้องรับ Service Dependency ผ่าน Dependency Injection",
+    "severity": "Medium",
+    "keywords": [
+      "controller",
+      "dependency injection",
+      "service",
+      "constructor"
+    ],
+    "recommendation": "Inject Service ผ่าน Constructor หรือกลไก DI ที่ Framework รองรับ",
+    "example_fix": "public UsersController(IUserService userService) { _userService = userService; }",
+    "embedding_text": "ARCH-004 Architecture Controller Service Dependency Injection Constructor .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-005",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "No Direct Database Access from Controller",
+    "description": "Controller ต้องไม่เข้าถึง Database โดยตรง",
+    "severity": "High",
+    "keywords": [
+      "controller",
+      "database",
+      "DbContext",
+      "repository"
+    ],
+    "recommendation": "ให้ Controller เรียก Service และแยก Database Access ไปยัง Layer ที่กำหนด",
+    "example_fix": "public async Task<IActionResult> GetUserAsync(int id) { return Ok(await _userService.GetByIdAsync(id)); }",
+    "embedding_text": "ARCH-005 Architecture Controller ห้ามเข้าถึง Database DbContext โดยตรง Service Repository .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-006",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Model Separation",
+    "description": "DTO, Domain Model และ Persistence Model ควรแยกหน้าที่ตาม Architecture ของระบบ",
+    "severity": "Medium",
+    "keywords": [
+      "DTO",
+      "domain model",
+      "entity",
+      "persistence model"
+    ],
+    "recommendation": "แยก Model ตาม Responsibility และ Mapping ระหว่าง Layer อย่างชัดเจน",
+    "example_fix": "var response = _mapper.Map<UserResponseDto>(user); return Ok(response);",
+    "embedding_text": "ARCH-006 Architecture DTO Domain Model Persistence Entity Separation .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-007",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Layer Dependency Direction",
+    "description": "Dependency ระหว่าง Layer ต้องเป็นไปตามทิศทางที่ Architecture ขององค์กรกำหนด",
+    "severity": "High",
+    "keywords": [
+      "layer",
+      "dependency",
+      "clean architecture",
+      "dependency rule"
+    ],
+    "recommendation": "ปรับ Dependency ให้ Layer ภายในไม่ขึ้นกับรายละเอียดของ Infrastructure โดยไม่จำเป็น",
+    "example_fix": "public UserService(IUserRepository repository) { _repository = repository; }",
+    "embedding_text": "ARCH-007 Architecture Layer Dependency Direction Clean Architecture Dependency Rule .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-008",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Centralized Cross-Cutting Concerns",
+    "description": "Cross-cutting Concern เช่น Exception Handling และ Logging ควรถูกจัดการในส่วนกลางตาม Architecture",
+    "severity": "Medium",
+    "keywords": [
+      "middleware",
+      "logging",
+      "exception",
+      "cross-cutting"
+    ],
+    "recommendation": "ใช้ Middleware, Filter หรือ Component ส่วนกลางสำหรับ Cross-cutting Concerns",
+    "example_fix": "app.UseMiddleware<GlobalExceptionMiddleware>();",
+    "embedding_text": "ARCH-008 Architecture Cross Cutting Concern Middleware Exception Handling Logging .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-009",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Externalize Configuration",
+    "description": "Configuration ของระบบต้องแยกออกจาก Business Logic และ Source Code ตามความเหมาะสม",
+    "severity": "Medium",
+    "keywords": [
+      "configuration",
+      "appsettings",
+      "environment",
+      "IOptions"
+    ],
+    "recommendation": "ใช้ Configuration Provider หรือ IOptions แทนการฝังค่า Configuration ใน Business Logic",
+    "example_fix": "public UserService(IOptions<ApiOptions> options) { _options = options.Value; }",
+    "embedding_text": "ARCH-009 Architecture Configuration appsettings Environment IOptions แยกจาก Business Logic .NET",
+    "enabled": true
+  },
+  {
+    "rule_id": "ARCH-010",
+    "category": "Architecture",
+    "technology": ".NET Web API",
+    "title": "Single Responsibility",
+    "description": "Service และ Component ควรมีหน้าที่รับผิดชอบที่ชัดเจนและไม่รวมความรับผิดชอบหลายด้านโดยไม่จำเป็น",
+    "severity": "Medium",
+    "keywords": [
+      "single responsibility",
+      "SRP",
+      "service",
+      "component",
+      "SOLID"
+    ],
+    "recommendation": "แยก Service หรือ Component ที่มีหลาย Responsibility ออกเป็นส่วนที่มีหน้าที่ชัดเจน",
+    "example_fix": "public class UserService { public Task<User?> GetUserAsync(int id) => _repository.GetByIdAsync(id); }\npublic class EmailService { public Task SendAsync(string email) => _emailSender.SendAsync(email); }",
+    "embedding_text": "ARCH-010 Architecture Single Responsibility SRP SOLID Service Component .NET",
+    "enabled": true
+  }
+]
