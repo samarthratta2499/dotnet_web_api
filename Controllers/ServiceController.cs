@@ -7,17 +7,11 @@ namespace dotnet_web_api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserApplicationService _service;
-    private readonly IOrgIdentityContext _identityContext;
-    private readonly IOrgAuthorizationService _authorization;
 
     public UsersController(
-        IUserApplicationService service,
-        IOrgIdentityContext identityContext,
-        IOrgAuthorizationService authorization)
+        IUserApplicationService service)
     {
         _service = service;
-        _identityContext = identityContext;
-        _authorization = authorization;
     }
 
     [HttpGet("{id}")]
@@ -31,7 +25,6 @@ public class UsersController : ControllerBase
             Activity.Current?.TraceId.ToString()
             ?? HttpContext.TraceIdentifier;
 
-        return Ok(
-            OrgApiResponse<UserDto>.Success(user, traceId));
+        return Ok(OrgApiResponse<UserDto>.Success(user, traceId));
     }
 }
