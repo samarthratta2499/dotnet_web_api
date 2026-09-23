@@ -13,4 +13,11 @@ public class ServiceController : ControllerBase
         _service = service;
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(string id, CancellationToken ct)
+    {
+        var user = await _service.GetAsync(id, ct);
+        return Ok(user);
+    }
+
 }
