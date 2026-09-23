@@ -13,4 +13,13 @@ public class ServiceController : ControllerBase
         _service = service;
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(string id, CancellationToken ct)
+    {
+        var user = await _service.GetAsync(id, ct); 
+        var traceId = Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier; 
+        return Ok(OrgApiResponse<UserDto>.Success(user, traceId));
+    }
+
+
 }
