@@ -35,4 +35,3 @@ public class UsersController : ControllerBase
             OrgApiResponse<UserDto>.Success(user, traceId));
     }
 }
-
