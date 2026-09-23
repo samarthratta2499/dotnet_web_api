@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace dotnet_web_api.Controllers;
 
 [ApiController]
-[Route("[controller]/[action]")]
+[Route("[controller]")]
 public class ServiceController : ControllerBase
 {
     private readonly IService _service;
