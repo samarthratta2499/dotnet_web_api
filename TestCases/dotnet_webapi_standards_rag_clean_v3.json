@@ -1,0 +1,640 @@
+[
+  {
+    "rule_id": "ORG-API-001",
+    "issue_type": "ORG_RESPONSE_ENVELOPE_REQUIRED",
+    "category": "API",
+    "title": "Organization Standard Response Envelope",
+    "description": "ทุก API ที่สำเร็จต้องตอบผ่าน OrgApiResponse<T> และมี fields: success, code, message, data, traceId ห้าม return DTO/Entity โดยตรง",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Controller endpoint ส่ง DTO, Entity, object หรือ anonymous object โดยตรงโดยไม่ห่อด้วย OrgApiResponse<T>"
+    ],
+    "non_violation_criteria": [
+      "Response ถูกห่อด้วย OrgApiResponse<T> และมี success, code, message, data, traceId"
+    ],
+    "recommendation": "ใช้ OrgApiResponse<T> เป็น response envelope กลางขององค์กร",
+    "example_fix": "return Ok(OrgApiResponse<UserDto>.Success(user, traceId));",
+    "keywords": [
+      "OrgApiResponse",
+      "response envelope",
+      "traceId",
+      "organization api"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: API .NET Web API. Code concept: Organization Standard Response Envelope. Expected behavior: ทุก API ที่สำเร็จต้องตอบผ่าน OrgApiResponse<T> และมี fields: success, code, message, data, traceId ห้าม return DTO/Entity โดยตรง Violation pattern: Controller endpoint ส่ง DTO, Entity, object หรือ anonymous object โดยตรงโดยไม่ห่อด้วย OrgApiResponse<T> Compliant pattern: Response ถูกห่อด้วย OrgApiResponse<T> และมี success, code, message, data, traceId Code concepts and keywords: OrgApiResponse response envelope traceId organization api."
+  },
+  {
+    "rule_id": "ORG-API-002",
+    "issue_type": "ORG_ERROR_CODE_FORMAT",
+    "category": "API",
+    "title": "Organization Error Code Format",
+    "description": "Error code ขององค์กรต้องใช้รูปแบบ {SYSTEM}-{MODULE}-{NNN} เช่น BIZ-AUTH-001 ห้ามใช้ข้อความหรือเลข HTTP status เป็น business error code",
+    "severity": "Medium",
+    "detection_criteria": [
+      "พบ business error code ที่ไม่ตรงรูปแบบ {SYSTEM}-{MODULE}-{NNN}",
+      "ใช้ค่าเช่น ERROR, 400, INVALID เป็น error code ขององค์กร"
+    ],
+    "non_violation_criteria": [
+      "Business error code อยู่ในรูปแบบเช่น BIZ-AUTH-001"
+    ],
+    "recommendation": "กำหนด error code จาก OrganizationErrorCodes และใช้รูปแบบมาตรฐาน",
+    "example_fix": "return BadRequest(OrgApiResponse.Fail(\"BIZ-USER-001\", \"Invalid user data\", traceId));",
+    "keywords": [
+      "error code",
+      "BIZ-AUTH-001",
+      "organization error"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: API .NET Web API. Code concept: Organization Error Code Format. Expected behavior: Error code ขององค์กรต้องใช้รูปแบบ {SYSTEM}-{MODULE}-{NNN} เช่น BIZ-AUTH-001 ห้ามใช้ข้อความหรือเลข HTTP status เป็น business error code Violation pattern: พบ business error code ที่ไม่ตรงรูปแบบ {SYSTEM}-{MODULE}-{NNN} ใช้ค่าเช่น ERROR, 400, INVALID เป็น error code ขององค์กร Compliant pattern: Business error code อยู่ในรูปแบบเช่น BIZ-AUTH-001 Code concepts and keywords: error code BIZ-AUTH-001 organization error."
+  },
+  {
+    "rule_id": "ORG-API-003",
+    "issue_type": "ORG_TRACE_ID_REQUIRED",
+    "category": "API",
+    "title": "Trace ID Required in API Response",
+    "description": "ทุก API response ขององค์กรต้องมี traceId เพื่อเชื่อมโยงกับระบบ Logging และ Distributed Tracing",
+    "severity": "Medium",
+    "detection_criteria": [
+      "API response ไม่มี traceId หรือไม่ได้ส่ง correlation/trace identifier กลับผู้เรียก"
+    ],
+    "non_violation_criteria": [
+      "Response envelope มี traceId ที่ได้จาก request/activity context"
+    ],
+    "recommendation": "อ่าน trace id จาก Activity.Current หรือ middleware context แล้วใส่ใน OrgApiResponse",
+    "example_fix": "var traceId = Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier;",
+    "keywords": [
+      "traceId",
+      "correlation",
+      "Activity",
+      "distributed tracing"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: API .NET Web API. Code concept: Trace ID Required in API Response. Expected behavior: ทุก API response ขององค์กรต้องมี traceId เพื่อเชื่อมโยงกับระบบ Logging และ Distributed Tracing Violation pattern: API response ไม่มี traceId หรือไม่ได้ส่ง correlation/trace identifier กลับผู้เรียก Compliant pattern: Response envelope มี traceId ที่ได้จาก request/activity context Code concepts and keywords: traceId correlation Activity distributed tracing."
+  },
+  {
+    "rule_id": "ORG-API-004",
+    "issue_type": "ORG_ROUTE_PREFIX_REQUIRED",
+    "category": "API",
+    "title": "Organization API Route Prefix",
+    "description": "Public API ขององค์กรต้องใช้ route prefix /api/org/v{version}/ และชื่อ resource เป็น kebab-case",
+    "severity": "Low",
+    "detection_criteria": [
+      "Controller public API ไม่มี prefix api/org/v{version}",
+      "ชื่อ resource ใน route ไม่เป็น kebab-case"
+    ],
+    "non_violation_criteria": [
+      "Route มีรูปแบบ api/org/v{version}/user-profiles"
+    ],
+    "recommendation": "กำหนด route ตาม Organization API Convention",
+    "example_fix": "[Route(\"api/org/v{version:apiVersion}/user-profiles\")]",
+    "keywords": [
+      "route prefix",
+      "api/org",
+      "version",
+      "kebab-case"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: API .NET Web API. Code concept: Organization API Route Prefix. Expected behavior: Public API ขององค์กรต้องใช้ route prefix /api/org/v{version}/ และชื่อ resource เป็น kebab-case Violation pattern: Controller public API ไม่มี prefix api/org/v{version} ชื่อ resource ใน route ไม่เป็น kebab-case Compliant pattern: Route มีรูปแบบ api/org/v{version}/user-profiles Code concepts and keywords: route prefix api/org version kebab-case."
+  },
+  {
+    "rule_id": "ORG-API-005",
+    "issue_type": "ORG_IDEMPOTENCY_KEY_REQUIRED",
+    "category": "API",
+    "title": "Idempotency Key for Transaction Commands",
+    "description": "Endpoint ที่สร้างธุรกรรม การชำระเงิน หรือคำขอที่อาจถูกส่งซ้ำ ต้องรับ header X-Org-Idempotency-Key และตรวจสอบก่อนประมวลผล",
+    "severity": "High",
+    "detection_criteria": [
+      "POST transaction/submit/payment endpoint ไม่มีการรับหรือตรวจ X-Org-Idempotency-Key"
+    ],
+    "non_violation_criteria": [
+      "Endpoint ตรวจ header X-Org-Idempotency-Key และป้องกันการประมวลผลคำขอซ้ำ"
+    ],
+    "recommendation": "ใช้ Idempotency service กลางขององค์กรก่อนทำ transaction",
+    "example_fix": "var key = Request.Headers[\"X-Org-Idempotency-Key\"].ToString(); await _idempotency.ValidateAsync(key);",
+    "keywords": [
+      "idempotency",
+      "X-Org-Idempotency-Key",
+      "transaction",
+      "duplicate request"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: API .NET Web API. Code concept: Idempotency Key for Transaction Commands. Expected behavior: Endpoint ที่สร้างธุรกรรม การชำระเงิน หรือคำขอที่อาจถูกส่งซ้ำ ต้องรับ header X-Org-Idempotency-Key และตรวจสอบก่อนประมวลผล Violation pattern: POST transaction/submit/payment endpoint ไม่มีการรับหรือตรวจ X-Org-Idempotency-Key Compliant pattern: Endpoint ตรวจ header X-Org-Idempotency-Key และป้องกันการประมวลผลคำขอซ้ำ Code concepts and keywords: idempotency X-Org-Idempotency-Key transaction duplicate request."
+  },
+  {
+    "rule_id": "ORG-SEC-001",
+    "issue_type": "ORG_CITIZEN_ID_MASKING_REQUIRED",
+    "category": "Security",
+    "title": "Citizen ID Masking Standard",
+    "description": "เลขประจำตัวประชาชนต้องไม่ถูกบันทึกลง log แบบเต็ม ต้อง mask เหลือเฉพาะ 4 หลักท้าย",
+    "severity": "High",
+    "detection_criteria": [
+      "Logging statement บันทึก citizenId หรือ nationalId แบบเต็ม"
+    ],
+    "non_violation_criteria": [
+      "Citizen ID ถูก mask ก่อน log และแสดงเฉพาะ 4 หลักท้าย"
+    ],
+    "recommendation": "ใช้ OrgDataMasker.MaskCitizenId ก่อนส่งข้อมูลเข้า logger",
+    "example_fix": "_logger.LogInformation(\"CitizenId={CitizenId}\", OrgDataMasker.MaskCitizenId(citizenId));",
+    "keywords": [
+      "citizenId",
+      "nationalId",
+      "mask",
+      "PII",
+      "OrgDataMasker"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Security .NET Web API. Code concept: Citizen ID Masking Standard. Expected behavior: เลขประจำตัวประชาชนต้องไม่ถูกบันทึกลง log แบบเต็ม ต้อง mask เหลือเฉพาะ 4 หลักท้าย Violation pattern: Logging statement บันทึก citizenId หรือ nationalId แบบเต็ม Compliant pattern: Citizen ID ถูก mask ก่อน log และแสดงเฉพาะ 4 หลักท้าย Code concepts and keywords: citizenId nationalId mask PII OrgDataMasker."
+  },
+  {
+    "rule_id": "ORG-SEC-002",
+    "issue_type": "ORG_TOKEN_LOGGING_PROHIBITED",
+    "category": "Security",
+    "title": "Organization Token Logging Prohibition",
+    "description": "ห้ามบันทึก access token, refresh token, ID token หรือ Authorization header ลง application log แม้จะ mask บางส่วน",
+    "severity": "Critical",
+    "detection_criteria": [
+      "มีการส่ง token หรือ Authorization header เข้า logger"
+    ],
+    "non_violation_criteria": [
+      "Log เฉพาะ token metadata ที่ไม่สามารถใช้ยืนยันตัวตนได้ เช่น expiry หรือ token type"
+    ],
+    "recommendation": "ลบ token ออกจาก logging context และใช้ subject/traceId ที่ไม่ใช่ credential แทน",
+    "example_fix": "_logger.LogInformation(\"Authenticated subject={Subject}\", subjectId);",
+    "keywords": [
+      "access token",
+      "refresh token",
+      "authorization header",
+      "logging"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Security .NET Web API. Code concept: Organization Token Logging Prohibition. Expected behavior: ห้ามบันทึก access token, refresh token, ID token หรือ Authorization header ลง application log แม้จะ mask บางส่วน Violation pattern: มีการส่ง token หรือ Authorization header เข้า logger Compliant pattern: Log เฉพาะ token metadata ที่ไม่สามารถใช้ยืนยันตัวตนได้ เช่น expiry หรือ token type Code concepts and keywords: access token refresh token authorization header logging."
+  },
+  {
+    "rule_id": "ORG-SEC-003",
+    "issue_type": "ORG_DBDID_CONTEXT_REQUIRED",
+    "category": "Security",
+    "title": "Legal Entity Context Verification",
+    "description": "Endpoint สำหรับนิติบุคคลต้องตรวจ organizationId/legalEntityId จาก trusted identity context และห้ามเชื่อค่าที่ client ส่งมาโดยตรง",
+    "severity": "Critical",
+    "detection_criteria": [
+      "นำ organizationId/legalEntityId จาก request body/query ไปใช้ authorize หรือ query ข้อมูลโดยไม่เทียบ trusted identity context"
+    ],
+    "non_violation_criteria": [
+      "ใช้ legal entity identifier จาก authenticated claims/context และตรวจสิทธิ์ก่อนเข้าถึงข้อมูล"
+    ],
+    "recommendation": "อ่าน legalEntityId จาก IOrgIdentityContext และทำ resource authorization",
+    "example_fix": "var legalEntityId = _identityContext.LegalEntityId; await _authorization.EnsureLegalEntityAccessAsync(legalEntityId);",
+    "keywords": [
+      "legalEntityId",
+      "organizationId",
+      "identity context",
+      "DBDID",
+      "authorization"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Security .NET Web API. Code concept: Legal Entity Context Verification. Expected behavior: Endpoint สำหรับนิติบุคคลต้องตรวจ organizationId/legalEntityId จาก trusted identity context และห้ามเชื่อค่าที่ client ส่งมาโดยตรง Violation pattern: นำ organizationId/legalEntityId จาก request body/query ไปใช้ authorize หรือ query ข้อมูลโดยไม่เทียบ trusted identity context Compliant pattern: ใช้ legal entity identifier จาก authenticated claims/context และตรวจสิทธิ์ก่อนเข้าถึงข้อมูล Code concepts and keywords: legalEntityId organizationId identity context DBDID authorization."
+  },
+  {
+    "rule_id": "ORG-SEC-004",
+    "issue_type": "ORG_PERSON_CONTEXT_REQUIRED",
+    "category": "Security",
+    "title": "Person Identity Context Verification",
+    "description": "Endpoint สำหรับบุคคลธรรมดาต้องใช้ person identifier จาก trusted identity context ห้ามใช้ citizenId จาก request เป็นหลักในการตัดสินสิทธิ์",
+    "severity": "Critical",
+    "detection_criteria": [
+      "ใช้ citizenId จาก request เพื่อเลือกหรือ authorize resource โดยไม่เทียบ authenticated identity context"
+    ],
+    "non_violation_criteria": [
+      "ใช้ person identifier จาก authenticated identity context และตรวจ resource authorization"
+    ],
+    "recommendation": "ใช้ IOrgIdentityContext.PersonId เป็นแหล่งข้อมูลหลักสำหรับ authorization",
+    "example_fix": "var personId = _identityContext.PersonId;",
+    "keywords": [
+      "personId",
+      "citizenId",
+      "identity context",
+      "authorization"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Security .NET Web API. Code concept: Person Identity Context Verification. Expected behavior: Endpoint สำหรับบุคคลธรรมดาต้องใช้ person identifier จาก trusted identity context ห้ามใช้ citizenId จาก request เป็นหลักในการตัดสินสิทธิ์ Violation pattern: ใช้ citizenId จาก request เพื่อเลือกหรือ authorize resource โดยไม่เทียบ authenticated identity context Compliant pattern: ใช้ person identifier จาก authenticated identity context และตรวจ resource authorization Code concepts and keywords: personId citizenId identity context authorization."
+  },
+  {
+    "rule_id": "ORG-SEC-005",
+    "issue_type": "ORG_SENSITIVE_FIELD_RESPONSE_PROHIBITED",
+    "category": "Security",
+    "title": "Organization Sensitive Response Field Policy",
+    "description": "API response ห้ามมี citizenId เต็ม, passwordHash, refreshToken, apiSecret หรือ internalUserId เว้นแต่ endpoint ถูกระบุใน allowlist ขององค์กร",
+    "severity": "High",
+    "detection_criteria": [
+      "Response DTO/Entity มี sensitive field ที่ถูกห้ามและไม่มีหลักฐานว่าอยู่ใน allowlist"
+    ],
+    "non_violation_criteria": [
+      "ใช้ public response DTO ที่ตัดหรือ mask sensitive fields แล้ว"
+    ],
+    "recommendation": "สร้าง Public DTO และใช้ Organization response allowlist",
+    "example_fix": "return Ok(new UserPublicDto { DisplayName = user.DisplayName, CitizenIdMasked = OrgDataMasker.MaskCitizenId(user.CitizenId) });",
+    "keywords": [
+      "sensitive response",
+      "citizenId",
+      "refreshToken",
+      "internalUserId"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Security .NET Web API. Code concept: Organization Sensitive Response Field Policy. Expected behavior: API response ห้ามมี citizenId เต็ม, passwordHash, refreshToken, apiSecret หรือ internalUserId เว้นแต่ endpoint ถูกระบุใน allowlist ขององค์กร Violation pattern: Response DTO/Entity มี sensitive field ที่ถูกห้ามและไม่มีหลักฐานว่าอยู่ใน allowlist Compliant pattern: ใช้ public response DTO ที่ตัดหรือ mask sensitive fields แล้ว Code concepts and keywords: sensitive response citizenId refreshToken internalUserId."
+  },
+  {
+    "rule_id": "ORG-ARCH-001",
+    "issue_type": "ORG_CONTROLLER_SERVICE_BOUNDARY",
+    "category": "Architecture",
+    "title": "Organization Controller Boundary",
+    "description": "Controller ขององค์กรทำได้เฉพาะ validate transport input, authorization orchestration, เรียก Application Service และ map HTTP response; ห้ามมี business decision",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Controller มีการคำนวณ business value, ตัดสิน business status, discount, fee หรือ workflow transition"
+    ],
+    "non_violation_criteria": [
+      "Controller ส่งงาน business ไปยัง Application Service/Use Case"
+    ],
+    "recommendation": "ย้าย business decision ไป Application Service",
+    "example_fix": "var result = await _applicationService.SubmitAsync(request, cancellationToken);",
+    "keywords": [
+      "controller",
+      "business logic",
+      "application service",
+      "boundary"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Architecture .NET Web API. Code concept: Organization Controller Boundary. Expected behavior: Controller ขององค์กรทำได้เฉพาะ validate transport input, authorization orchestration, เรียก Application Service และ map HTTP response; ห้ามมี business decision Violation pattern: Controller มีการคำนวณ business value, ตัดสิน business status, discount, fee หรือ workflow transition Compliant pattern: Controller ส่งงาน business ไปยัง Application Service/Use Case Code concepts and keywords: controller business logic application service boundary."
+  },
+  {
+    "rule_id": "ORG-ARCH-002",
+    "issue_type": "ORG_REPOSITORY_ACCESS_FROM_CONTROLLER",
+    "category": "Architecture",
+    "title": "Repository Access Restricted in Controller",
+    "description": "Controller ห้าม inject หรือเรียก Repository/DbContext/MongoCollection โดยตรง ต้องผ่าน Application Service เท่านั้น",
+    "severity": "High",
+    "detection_criteria": [
+      "Controller constructor รับ Repository, DbContext หรือ IMongoCollection",
+      "Controller action เรียก repository/database โดยตรง"
+    ],
+    "non_violation_criteria": [
+      "Controller พึ่งพา Application Service/Use Case เท่านั้น"
+    ],
+    "recommendation": "ย้าย data access orchestration ไป Application Service",
+    "example_fix": "public UsersController(IUserApplicationService service) { _service = service; }",
+    "keywords": [
+      "repository",
+      "DbContext",
+      "IMongoCollection",
+      "controller",
+      "application service"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Architecture .NET Web API. Code concept: Repository Access Restricted in Controller. Expected behavior: Controller ห้าม inject หรือเรียก Repository/DbContext/MongoCollection โดยตรง ต้องผ่าน Application Service เท่านั้น Violation pattern: Controller constructor รับ Repository, DbContext หรือ IMongoCollection Controller action เรียก repository/database โดยตรง Compliant pattern: Controller พึ่งพา Application Service/Use Case เท่านั้น Code concepts and keywords: repository DbContext IMongoCollection controller application service."
+  },
+  {
+    "rule_id": "ORG-ARCH-003",
+    "issue_type": "ORG_DOMAIN_ENTITY_API_EXPOSURE",
+    "category": "Architecture",
+    "title": "Domain Entity Must Not Cross API Boundary",
+    "description": "Domain Entity และ Persistence Model ห้ามใช้เป็น request/response contract ของ API ต้อง map เป็น RequestDto/ResponseDto",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Controller parameter หรือ return type เป็น Entity/Domain Model/Persistence Model โดยตรง"
+    ],
+    "non_violation_criteria": [
+      "API boundary ใช้ RequestDto/ResponseDto และมี mapping ชัดเจน"
+    ],
+    "recommendation": "แยก API Contract ออกจาก Domain/Persistence Model",
+    "example_fix": "var response = _mapper.Map<UserResponseDto>(entity);",
+    "keywords": [
+      "domain entity",
+      "persistence model",
+      "DTO",
+      "API boundary"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Architecture .NET Web API. Code concept: Domain Entity Must Not Cross API Boundary. Expected behavior: Domain Entity และ Persistence Model ห้ามใช้เป็น request/response contract ของ API ต้อง map เป็น RequestDto/ResponseDto Violation pattern: Controller parameter หรือ return type เป็น Entity/Domain Model/Persistence Model โดยตรง Compliant pattern: API boundary ใช้ RequestDto/ResponseDto และมี mapping ชัดเจน Code concepts and keywords: domain entity persistence model DTO API boundary."
+  },
+  {
+    "rule_id": "ORG-ARCH-004",
+    "issue_type": "ORG_EXTERNAL_SERVICE_GATEWAY_REQUIRED",
+    "category": "Architecture",
+    "title": "External Service Gateway Required",
+    "description": "การเรียก API ภายนอกต้องผ่าน Gateway/Client abstraction ที่องค์กรกำหนด ห้ามสร้าง HttpClient หรือเรียก URL ภายนอกจาก Controller/Domain Service โดยตรง",
+    "severity": "High",
+    "detection_criteria": [
+      "Controller/Domain Service สร้าง HttpClient หรือเรียก external URL โดยตรง"
+    ],
+    "non_violation_criteria": [
+      "External API ถูกเรียกผ่าน typed client/gateway ที่ inject ผ่าน DI"
+    ],
+    "recommendation": "สร้าง IExternalServiceGateway และลงทะเบียน typed HttpClient ผ่าน DI",
+    "example_fix": "await _externalGateway.GetProfileAsync(id, cancellationToken);",
+    "keywords": [
+      "HttpClient",
+      "external API",
+      "gateway",
+      "typed client"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Architecture .NET Web API. Code concept: External Service Gateway Required. Expected behavior: การเรียก API ภายนอกต้องผ่าน Gateway/Client abstraction ที่องค์กรกำหนด ห้ามสร้าง HttpClient หรือเรียก URL ภายนอกจาก Controller/Domain Service โดยตรง Violation pattern: Controller/Domain Service สร้าง HttpClient หรือเรียก external URL โดยตรง Compliant pattern: External API ถูกเรียกผ่าน typed client/gateway ที่ inject ผ่าน DI Code concepts and keywords: HttpClient external API gateway typed client."
+  },
+  {
+    "rule_id": "ORG-ARCH-005",
+    "issue_type": "ORG_CANCELLATION_TOKEN_REQUIRED",
+    "category": "Architecture",
+    "title": "CancellationToken Propagation",
+    "description": "Application Service, Repository และ External Gateway ที่เป็น async I/O ต้องรับและส่งต่อ CancellationToken จาก HTTP request",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Async I/O method ไม่มี CancellationToken parameter หรือได้รับ token แล้วไม่ส่งต่อไปยัง downstream call"
+    ],
+    "non_violation_criteria": [
+      "CancellationToken ถูก propagate จาก Controller ไปยัง service/repository/gateway"
+    ],
+    "recommendation": "เพิ่ม CancellationToken และส่งต่อทุก async I/O boundary",
+    "example_fix": "await _repository.GetAsync(id, cancellationToken);",
+    "keywords": [
+      "CancellationToken",
+      "async I/O",
+      "propagation"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Architecture .NET Web API. Code concept: CancellationToken Propagation. Expected behavior: Application Service, Repository และ External Gateway ที่เป็น async I/O ต้องรับและส่งต่อ CancellationToken จาก HTTP request Violation pattern: Async I/O method ไม่มี CancellationToken parameter หรือได้รับ token แล้วไม่ส่งต่อไปยัง downstream call Compliant pattern: CancellationToken ถูก propagate จาก Controller ไปยัง service/repository/gateway Code concepts and keywords: CancellationToken async I/O propagation."
+  },
+  {
+    "rule_id": "ORG-OBS-001",
+    "issue_type": "ORG_STRUCTURED_AUDIT_EVENT_REQUIRED",
+    "category": "Observability",
+    "title": "Structured Audit Event Required",
+    "description": "การสร้าง แก้ไข อนุมัติ ยกเลิก หรือเปลี่ยนสถานะธุรกรรมสำคัญ ต้องสร้าง Organization Audit Event ที่มี actorId, action, resourceType, resourceId, result และ traceId",
+    "severity": "High",
+    "detection_criteria": [
+      "Critical state-changing operation สำเร็จ/ล้มเหลวโดยไม่มีการเขียน audit event ตาม fields ที่กำหนด"
+    ],
+    "non_violation_criteria": [
+      "มี audit event ที่ประกอบด้วย actorId, action, resourceType, resourceId, result, traceId"
+    ],
+    "recommendation": "เรียก IOrgAuditService.RecordAsync หลัง business operation ตาม policy",
+    "example_fix": "await _audit.RecordAsync(actorId, \"APPROVE\", \"Application\", id, \"SUCCESS\", traceId);",
+    "keywords": [
+      "audit",
+      "actorId",
+      "resourceId",
+      "traceId",
+      "state change"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Observability .NET Web API. Code concept: Structured Audit Event Required. Expected behavior: การสร้าง แก้ไข อนุมัติ ยกเลิก หรือเปลี่ยนสถานะธุรกรรมสำคัญ ต้องสร้าง Organization Audit Event ที่มี actorId, action, resourceType, resourceId, result และ traceId Violation pattern: Critical state-changing operation สำเร็จ/ล้มเหลวโดยไม่มีการเขียน audit event ตาม fields ที่กำหนด Compliant pattern: มี audit event ที่ประกอบด้วย actorId, action, resourceType, resourceId, result, traceId Code concepts and keywords: audit actorId resourceId traceId state change."
+  },
+  {
+    "rule_id": "ORG-OBS-002",
+    "issue_type": "ORG_LOG_TEMPLATE_REQUIRED",
+    "category": "Observability",
+    "title": "Organization Structured Log Template",
+    "description": "Application log ต้องใช้ structured logging template ห้ามใช้ string interpolation/concatenation และต้องมี EventName สำหรับเหตุการณ์ธุรกิจสำคัญ",
+    "severity": "Medium",
+    "detection_criteria": [
+      "logger ใช้ interpolated/concatenated string",
+      "Business event log ไม่มี EventName"
+    ],
+    "non_violation_criteria": [
+      "ใช้ message template และ structured properties พร้อม EventName เมื่อเป็น business event"
+    ],
+    "recommendation": "ใช้ structured logging placeholders และ event name ที่ค้นหาได้",
+    "example_fix": "_logger.LogInformation(\"{EventName} ApplicationId={ApplicationId}\", \"ApplicationSubmitted\", id);",
+    "keywords": [
+      "structured logging",
+      "EventName",
+      "message template"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Observability .NET Web API. Code concept: Organization Structured Log Template. Expected behavior: Application log ต้องใช้ structured logging template ห้ามใช้ string interpolation/concatenation และต้องมี EventName สำหรับเหตุการณ์ธุรกิจสำคัญ Violation pattern: logger ใช้ interpolated/concatenated string Business event log ไม่มี EventName Compliant pattern: ใช้ message template และ structured properties พร้อม EventName เมื่อเป็น business event Code concepts and keywords: structured logging EventName message template."
+  },
+  {
+    "rule_id": "ORG-DATA-001",
+    "issue_type": "ORG_SOFT_DELETE_REQUIRED",
+    "category": "Data",
+    "title": "Soft Delete for Business Records",
+    "description": "Business record ที่อยู่ภายใต้การตรวจสอบย้อนหลังห้าม physical delete ต้องใช้ IsDeleted/DeletedAt/DeletedBy ตาม Organization Data Policy",
+    "severity": "High",
+    "detection_criteria": [
+      "Repository เรียก Remove/DeleteOne/DeleteMany กับ business record ที่ควรเก็บ audit history"
+    ],
+    "non_violation_criteria": [
+      "ใช้ soft-delete fields และ query กรอง IsDeleted ตาม policy"
+    ],
+    "recommendation": "เปลี่ยน physical delete เป็น soft delete และบันทึกผู้ดำเนินการ",
+    "example_fix": "entity.IsDeleted = true; entity.DeletedAt = _clock.UtcNow; entity.DeletedBy = actorId;",
+    "keywords": [
+      "soft delete",
+      "IsDeleted",
+      "DeletedAt",
+      "DeletedBy",
+      "audit"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Data .NET Web API. Code concept: Soft Delete for Business Records. Expected behavior: Business record ที่อยู่ภายใต้การตรวจสอบย้อนหลังห้าม physical delete ต้องใช้ IsDeleted/DeletedAt/DeletedBy ตาม Organization Data Policy Violation pattern: Repository เรียก Remove/DeleteOne/DeleteMany กับ business record ที่ควรเก็บ audit history Compliant pattern: ใช้ soft-delete fields และ query กรอง IsDeleted ตาม policy Code concepts and keywords: soft delete IsDeleted DeletedAt DeletedBy audit."
+  },
+  {
+    "rule_id": "ORG-DATA-002",
+    "issue_type": "ORG_UTC_STORAGE_REQUIRED",
+    "category": "Data",
+    "title": "UTC Storage Standard",
+    "description": "วันเวลาในฐานข้อมูลและ integration payload ภายในองค์กรต้องจัดเก็บเป็น UTC; การแปลงเป็นเวลาไทยทำเฉพาะ presentation boundary",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Persist DateTime.Now หรือ local Thailand time ลง database",
+      "Domain persistence ผูกกับ Asia/Bangkok timezone"
+    ],
+    "non_violation_criteria": [
+      "Persist UTC และแปลง timezone เฉพาะ response/UI"
+    ],
+    "recommendation": "ใช้ TimeProvider/clock ที่คืน UTC และแปลง timezone ที่ presentation layer",
+    "example_fix": "entity.CreatedAt = _timeProvider.GetUtcNow();",
+    "keywords": [
+      "UTC",
+      "DateTime.Now",
+      "timezone",
+      "Thailand",
+      "TimeProvider"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Data .NET Web API. Code concept: UTC Storage Standard. Expected behavior: วันเวลาในฐานข้อมูลและ integration payload ภายในองค์กรต้องจัดเก็บเป็น UTC; การแปลงเป็นเวลาไทยทำเฉพาะ presentation boundary Violation pattern: Persist DateTime.Now หรือ local Thailand time ลง database Domain persistence ผูกกับ Asia/Bangkok timezone Compliant pattern: Persist UTC และแปลง timezone เฉพาะ response/UI Code concepts and keywords: UTC DateTime.Now timezone Thailand TimeProvider."
+  },
+  {
+    "rule_id": "ORG-DATA-003",
+    "issue_type": "ORG_MONGODB_QUERY_LIMIT_REQUIRED",
+    "category": "Data",
+    "title": "MongoDB Query Result Limit",
+    "description": "MongoDB list/search query ขององค์กรต้องมี limit และห้ามเกิน 200 records ต่อ request ยกเว้น batch job ที่ได้รับอนุญาต",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Find query คืนรายการโดยไม่มี Limit",
+      "API page size สามารถเกิน 200"
+    ],
+    "non_violation_criteria": [
+      "Query มี Limit และ enforce maximum page size 200"
+    ],
+    "recommendation": "บังคับ pageSize <= 200 และใช้ Limit(pageSize)",
+    "example_fix": "var pageSize = Math.Min(request.PageSize, 200); return await query.Limit(pageSize).ToListAsync(ct);",
+    "keywords": [
+      "MongoDB",
+      "Limit",
+      "pageSize",
+      "200",
+      "pagination"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Data .NET Web API. Code concept: MongoDB Query Result Limit. Expected behavior: MongoDB list/search query ขององค์กรต้องมี limit และห้ามเกิน 200 records ต่อ request ยกเว้น batch job ที่ได้รับอนุญาต Violation pattern: Find query คืนรายการโดยไม่มี Limit API page size สามารถเกิน 200 Compliant pattern: Query มี Limit และ enforce maximum page size 200 Code concepts and keywords: MongoDB Limit pageSize 200 pagination."
+  },
+  {
+    "rule_id": "ORG-DATA-004",
+    "issue_type": "ORG_MONGODB_PROJECTION_REQUIRED",
+    "category": "Data",
+    "title": "MongoDB Projection for Read APIs",
+    "description": "Read API ที่อ่าน MongoDB ต้อง project เฉพาะ fields ที่ response ใช้ ห้ามโหลด document ทั้งก้อนเมื่อ endpoint ใช้ข้อมูลเพียงบาง field",
+    "severity": "Low",
+    "detection_criteria": [
+      "Find/aggregate โหลด full document แล้ว response ใช้เพียง subset อย่างชัดเจน"
+    ],
+    "non_violation_criteria": [
+      "MongoDB query ใช้ projection ไปยัง read model/DTO ที่ต้องการ"
+    ],
+    "recommendation": "ใช้ Project/Select ไปยัง Read DTO",
+    "example_fix": "return await _users.Find(filter).Project(x => new UserListDto(x.Id, x.DisplayName)).ToListAsync(ct);",
+    "keywords": [
+      "MongoDB",
+      "projection",
+      "read API",
+      "DTO"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Data .NET Web API. Code concept: MongoDB Projection for Read APIs. Expected behavior: Read API ที่อ่าน MongoDB ต้อง project เฉพาะ fields ที่ response ใช้ ห้ามโหลด document ทั้งก้อนเมื่อ endpoint ใช้ข้อมูลเพียงบาง field Violation pattern: Find/aggregate โหลด full document แล้ว response ใช้เพียง subset อย่างชัดเจน Compliant pattern: MongoDB query ใช้ projection ไปยัง read model/DTO ที่ต้องการ Code concepts and keywords: MongoDB projection read API DTO."
+  },
+  {
+    "rule_id": "ORG-REL-001",
+    "issue_type": "ORG_ENVIRONMENT_CONFIG_REQUIRED",
+    "category": "Deployment",
+    "title": "Environment Configuration Policy",
+    "description": "ค่า endpoint, bucket, queue, database name และ feature switch ต้องมาจาก configuration/secret provider ตาม environment ห้าม hard-code ค่า UAT/PreProd/Prod ใน source code",
+    "severity": "High",
+    "detection_criteria": [
+      "Source code มี URL/domain/bucket/queue/database name ที่ผูกกับ environment แบบ hard-coded"
+    ],
+    "non_violation_criteria": [
+      "ค่า environment-specific ถูก inject ผ่าน typed options/configuration"
+    ],
+    "recommendation": "ใช้ IOptions<T> และ environment configuration",
+    "example_fix": "public ExternalGateway(IOptions<ExternalApiOptions> options) { _options = options.Value; }",
+    "keywords": [
+      "environment",
+      "UAT",
+      "PreProd",
+      "Prod",
+      "IOptions",
+      "configuration"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Deployment .NET Web API. Code concept: Environment Configuration Policy. Expected behavior: ค่า endpoint, bucket, queue, database name และ feature switch ต้องมาจาก configuration/secret provider ตาม environment ห้าม hard-code ค่า UAT/PreProd/Prod ใน source code Violation pattern: Source code มี URL/domain/bucket/queue/database name ที่ผูกกับ environment แบบ hard-coded Compliant pattern: ค่า environment-specific ถูก inject ผ่าน typed options/configuration Code concepts and keywords: environment UAT PreProd Prod IOptions configuration."
+  },
+  {
+    "rule_id": "ORG-REL-002",
+    "issue_type": "ORG_FEATURE_FLAG_REQUIRED",
+    "category": "Deployment",
+    "title": "Feature Flag for High-Risk Behavior Change",
+    "description": "พฤติกรรมใหม่ที่เปลี่ยน business flow สำคัญต้องอยู่หลัง Organization Feature Flag เพื่อรองรับ controlled rollout และ rollback",
+    "severity": "Medium",
+    "detection_criteria": [
+      "Code เปลี่ยนเส้นทาง business flow สำคัญโดยเปิดใช้งานทันทีและไม่มี feature flag"
+    ],
+    "non_violation_criteria": [
+      "Business behavior ใหม่ถูกควบคุมด้วย IOrgFeatureManager/feature flag"
+    ],
+    "recommendation": "เพิ่ม feature flag และกำหนด default state ตาม release policy",
+    "example_fix": "if (await _features.IsEnabledAsync(\"NewApprovalFlow\")) { ... }",
+    "keywords": [
+      "feature flag",
+      "rollout",
+      "rollback",
+      "business flow"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Deployment .NET Web API. Code concept: Feature Flag for High-Risk Behavior Change. Expected behavior: พฤติกรรมใหม่ที่เปลี่ยน business flow สำคัญต้องอยู่หลัง Organization Feature Flag เพื่อรองรับ controlled rollout และ rollback Violation pattern: Code เปลี่ยนเส้นทาง business flow สำคัญโดยเปิดใช้งานทันทีและไม่มี feature flag Compliant pattern: Business behavior ใหม่ถูกควบคุมด้วย IOrgFeatureManager/feature flag Code concepts and keywords: feature flag rollout rollback business flow."
+  },
+  {
+    "rule_id": "ORG-INT-001",
+    "issue_type": "ORG_EXTERNAL_TIMEOUT_REQUIRED",
+    "category": "Integration",
+    "title": "External Call Timeout Policy",
+    "description": "External HTTP integration ต้องมี timeout ที่กำหนดผ่าน typed configuration และต้องไม่ใช้ infinite/default timeout โดยไม่ระบุ policy",
+    "severity": "High",
+    "detection_criteria": [
+      "External HTTP client ไม่มี timeout/resilience policy ที่องค์กรกำหนด"
+    ],
+    "non_violation_criteria": [
+      "Typed HttpClient/Gateway มี timeout จาก configuration"
+    ],
+    "recommendation": "กำหนด timeout ผ่าน typed options และ resilience pipeline",
+    "example_fix": "services.AddHttpClient<IExternalGateway, ExternalGateway>(c => c.Timeout = options.Timeout);",
+    "keywords": [
+      "HttpClient",
+      "timeout",
+      "resilience",
+      "external integration"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Integration .NET Web API. Code concept: External Call Timeout Policy. Expected behavior: External HTTP integration ต้องมี timeout ที่กำหนดผ่าน typed configuration และต้องไม่ใช้ infinite/default timeout โดยไม่ระบุ policy Violation pattern: External HTTP client ไม่มี timeout/resilience policy ที่องค์กรกำหนด Compliant pattern: Typed HttpClient/Gateway มี timeout จาก configuration Code concepts and keywords: HttpClient timeout resilience external integration."
+  },
+  {
+    "rule_id": "ORG-INT-002",
+    "issue_type": "ORG_EXTERNAL_RETRY_POLICY_REQUIRED",
+    "category": "Integration",
+    "title": "Controlled Retry Policy",
+    "description": "External GET/read operation ที่ retry ได้ต้องใช้ retry policy กลางขององค์กร และห้ามเขียน while/for retry loop เองใน business code",
+    "severity": "Medium",
+    "detection_criteria": [
+      "มี manual retry loop รอบ external call",
+      "Retryable external read ไม่มี resilience policy เมื่อ context แสดงว่าต้อง retry"
+    ],
+    "non_violation_criteria": [
+      "ใช้ organization resilience pipeline/policy และจำกัดจำนวน retry"
+    ],
+    "recommendation": "ใช้ configured resilience handler แทน manual retry",
+    "example_fix": "services.AddHttpClient<IExternalGateway, ExternalGateway>().AddStandardResilienceHandler();",
+    "keywords": [
+      "retry",
+      "resilience",
+      "HttpClient",
+      "manual loop"
+    ],
+    "technology": ".NET Web API",
+    "enabled": true,
+    "embedding_text": "Context: Integration .NET Web API. Code concept: Controlled Retry Policy. Expected behavior: External GET/read operation ที่ retry ได้ต้องใช้ retry policy กลางขององค์กร และห้ามเขียน while/for retry loop เองใน business code Violation pattern: มี manual retry loop รอบ external call Retryable external read ไม่มี resilience policy เมื่อ context แสดงว่าต้อง retry Compliant pattern: ใช้ organization resilience pipeline/policy และจำกัดจำนวน retry Code concepts and keywords: retry resilience HttpClient manual loop."
+  }
+]
