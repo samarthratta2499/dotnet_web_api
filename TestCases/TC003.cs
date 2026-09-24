@@ -13,7 +13,7 @@ public sealed class UsersController : ControllerBase
     {
         var traceId = HttpContext.TraceIdentifier;
         if (string.IsNullOrWhiteSpace(name))
-            return BadRequest(new OrgApiError(false, "INVALID", "Invalid user data", traceId)); // TC-003
+            return BadRequest(new OrgApiError(false, "INVALID", "Invalid user data", traceId));
         return Ok();
     }
 }
