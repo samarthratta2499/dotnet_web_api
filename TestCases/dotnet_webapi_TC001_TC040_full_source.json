@@ -1,0 +1,1107 @@
+{
+  "dataset_name": "Organization-Specific .NET Web API Controlled Test Set - 4 Categories",
+  "dataset_version": "4.0-full-source-github-ready",
+  "design": {
+    "standards_count": 20,
+    "test_cases_count": 40,
+    "violation_cases": 20,
+    "compliant_cases": 20,
+    "categories": [
+      "API",
+      "Security",
+      "Architecture",
+      "Coding"
+    ],
+    "standards_per_category": 5,
+    "evaluation_key": "test_case_id + issue_type",
+    "ground_truth_visibility": "Evaluator only; never send ground_truth to LLM Only or LLM+RAG.",
+    "purpose": "Compare LLM Only and LLM+RAG on organization-specific standards using balanced positive and negative cases.",
+    "pass_label": "NO_ISSUE",
+    "evaluation_mode": "controlled paired test: one target rule per FAIL/PASS pair",
+    "source_code_format": "Full standalone C# source fixture suitable for GitHub PR review; each case includes surrounding declarations/context."
+  },
+  "coding_standards": [
+    {
+      "rule_id": "ORG-CODE-001",
+      "issue_type": "ORG_VARIABLE_PARAMETER_CAMELCASE",
+      "title": "Variable and Parameter Naming - camelCase",
+      "category": "Coding",
+      "severity": "Low",
+      "description": "Local variables and method parameters must use camelCase."
+    },
+    {
+      "rule_id": "ORG-CODE-002",
+      "issue_type": "ORG_ASYNC_METHOD_SUFFIX_REQUIRED",
+      "title": "Async Method Naming - Async Suffix",
+      "category": "Coding",
+      "severity": "Low",
+      "description": "Methods returning Task/Task<T> must end with Async."
+    },
+    {
+      "rule_id": "ORG-CODE-003",
+      "issue_type": "ORG_PRIVATE_FIELD_NAMING_REQUIRED",
+      "title": "Private Field Naming - _camelCase",
+      "category": "Coding",
+      "severity": "Low",
+      "description": "Private instance fields must use _camelCase."
+    },
+    {
+      "rule_id": "ORG-CODE-004",
+      "issue_type": "ORG_TYPE_METHOD_PASCALCASE_REQUIRED",
+      "title": "Type and Method Naming - PascalCase",
+      "category": "Coding",
+      "severity": "Low",
+      "description": "Class/type and method names must use PascalCase."
+    },
+    {
+      "rule_id": "ORG-CODE-005",
+      "issue_type": "ORG_EMPTY_CATCH_PROHIBITED",
+      "title": "Exception Handling - Empty Catch Prohibited",
+      "category": "Coding",
+      "severity": "Medium",
+      "description": "Exceptions must not be silently swallowed by an empty catch block; handle, log, translate, or rethrow them according to the organization exception policy."
+    }
+  ],
+  "test_cases": [
+    {
+      "test_case_id": "TC-001",
+      "standard_rule_id": "ORG-API-001",
+      "title": "Violation - Organization Standard Response Envelope",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC001.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC001;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IUserApplicationService { Task<UserDto> GetAsync(string id, CancellationToken ct); }\npublic sealed record UserDto(string Id, string DisplayName);\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    private readonly IUserApplicationService _service;\n    public UsersController(IUserApplicationService service) => _service = service;\n    [HttpGet(\"{id}\")]\n    public async Task<IActionResult> Get(string id, CancellationToken ct)\n    {\n        var user = await _service.GetAsync(id, ct);\n        return Ok(user); // TC-001: ORG-API-001 violation\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_RESPONSE_ENVELOPE_REQUIRED",
+          "rule_id": "ORG-API-001",
+          "category": "API",
+          "severity": "Medium",
+          "expected_description": "ทุก API ที่สำเร็จต้องตอบผ่าน OrgApiResponse<T> และมี fields: success, code, message, data, traceId ห้าม return DTO/Entity โดยตรง"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-001"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-002",
+      "standard_rule_id": "ORG-API-001",
+      "title": "Compliant - Organization Standard Response Envelope",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC002.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC002;\n\nusing System.Diagnostics;\nusing Microsoft.AspNetCore.Mvc;\npublic interface IUserApplicationService { Task<UserDto> GetAsync(string id, CancellationToken ct); }\npublic sealed record UserDto(string Id, string DisplayName);\npublic sealed record OrgApiResponse<T>(bool Success, string Code, string Message, T Data, string TraceId)\n{\n    public static OrgApiResponse<T> Ok(T data, string traceId) => new(true, \"SUCCESS\", \"Success\", data, traceId);\n}\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    private readonly IUserApplicationService _service;\n    public UsersController(IUserApplicationService service) => _service = service;\n    [HttpGet(\"{id}\")]\n    public async Task<IActionResult> Get(string id, CancellationToken ct)\n    {\n        var user = await _service.GetAsync(id, ct);\n        var traceId = Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier;\n        return Ok(OrgApiResponse<UserDto>.Ok(user, traceId));\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "API",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-001"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-003",
+      "standard_rule_id": "ORG-API-002",
+      "title": "Violation - Organization Error Code Format",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC003.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC003;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record OrgApiError(bool Success, string Code, string Message, string TraceId);\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    [HttpPost]\n    public IActionResult Create(string name)\n    {\n        var traceId = HttpContext.TraceIdentifier;\n        if (string.IsNullOrWhiteSpace(name))\n            return BadRequest(new OrgApiError(false, \"INVALID\", \"Invalid user data\", traceId)); // TC-003\n        return Ok();\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_ERROR_CODE_FORMAT",
+          "rule_id": "ORG-API-002",
+          "category": "API",
+          "severity": "Medium",
+          "expected_description": "Error code ขององค์กรต้องใช้รูปแบบ {SYSTEM}-{MODULE}-{NNN} เช่น BIZ-AUTH-001 ห้ามใช้ข้อความหรือเลข HTTP status เป็น business error code"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-002"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-004",
+      "standard_rule_id": "ORG-API-002",
+      "title": "Compliant - Organization Error Code Format",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC004.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC004;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record OrgApiError(bool Success, string Code, string Message, string TraceId);\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    [HttpPost]\n    public IActionResult Create(string name)\n    {\n        var traceId = HttpContext.TraceIdentifier;\n        if (string.IsNullOrWhiteSpace(name))\n            return BadRequest(new OrgApiError(false, \"BIZ-USER-001\", \"Invalid user data\", traceId)); // TC-004 compliant\n        return Ok();\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "API",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-002"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-005",
+      "standard_rule_id": "ORG-API-003",
+      "title": "Violation - Trace ID Required in API Response",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC005.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC005;\n\nusing Microsoft.AspNetCore.Mvc;\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    [HttpGet(\"{id}\")]\n    public IActionResult Get(string id)\n    {\n        var data = new { id, displayName = \"Demo User\" };\n        return Ok(new { success = true, data }); // TC-005: missing traceId\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_TRACE_ID_REQUIRED",
+          "rule_id": "ORG-API-003",
+          "category": "API",
+          "severity": "Medium",
+          "expected_description": "ทุก API response ขององค์กรต้องมี traceId เพื่อเชื่อมโยงกับระบบ Logging และ Distributed Tracing"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-003"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-006",
+      "standard_rule_id": "ORG-API-003",
+      "title": "Compliant - Trace ID Required in API Response",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC006.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC006;\n\nusing System.Diagnostics;\nusing Microsoft.AspNetCore.Mvc;\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    [HttpGet(\"{id}\")]\n    public IActionResult Get(string id)\n    {\n        var data = new { id, displayName = \"Demo User\" };\n        var traceId = Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier;\n        return Ok(new { success = true, data, traceId });\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "API",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-003"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-007",
+      "standard_rule_id": "ORG-API-004",
+      "title": "Violation - Organization API Route Prefix",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC007.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC007;\n\nusing Microsoft.AspNetCore.Mvc;\n[ApiController]\n[Route(\"api/GetUserProfiles\")] // TC-007: invalid organization route\npublic sealed class UserProfilesController : ControllerBase\n{\n    [HttpGet] public IActionResult Get() => Ok();\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_ROUTE_PREFIX_REQUIRED",
+          "rule_id": "ORG-API-004",
+          "category": "API",
+          "severity": "Low",
+          "expected_description": "Public API ขององค์กรต้องใช้ route prefix /api/org/v{version}/ และชื่อ resource เป็น kebab-case"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-004"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-008",
+      "standard_rule_id": "ORG-API-004",
+      "title": "Compliant - Organization API Route Prefix",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC008.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC008;\n\nusing Microsoft.AspNetCore.Mvc;\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/user-profiles\")]\npublic sealed class UserProfilesController : ControllerBase\n{\n    [HttpGet] public IActionResult Get() => Ok();\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "API",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-004"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-009",
+      "standard_rule_id": "ORG-API-005",
+      "title": "Violation - Idempotency Key for Transaction Commands",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC009.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC009;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record PaymentRequest(decimal Amount);\npublic interface IPaymentService { Task<object> PayAsync(PaymentRequest request, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/payments\")]\npublic sealed class PaymentsController : ControllerBase\n{\n    private readonly IPaymentService _payment;\n    public PaymentsController(IPaymentService payment) => _payment = payment;\n    [HttpPost]\n    public async Task<IActionResult> Pay(PaymentRequest request, CancellationToken ct)\n        => Ok(await _payment.PayAsync(request, ct)); // TC-009: no idempotency key\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_IDEMPOTENCY_KEY_REQUIRED",
+          "rule_id": "ORG-API-005",
+          "category": "API",
+          "severity": "High",
+          "expected_description": "Endpoint ที่สร้างธุรกรรม การชำระเงิน หรือคำขอที่อาจถูกส่งซ้ำ ต้องรับ header X-Org-Idempotency-Key และตรวจสอบก่อนประมวลผล"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-005"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-010",
+      "standard_rule_id": "ORG-API-005",
+      "title": "Compliant - Idempotency Key for Transaction Commands",
+      "technology": ".NET Web API",
+      "category": "API",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC010.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC010;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record PaymentRequest(decimal Amount);\npublic interface IPaymentService { Task<object> PayAsync(PaymentRequest request, CancellationToken ct); }\npublic interface IIdempotencyService { Task ValidateAsync(string key, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/payments\")]\npublic sealed class PaymentsController : ControllerBase\n{\n    private readonly IPaymentService _payment; private readonly IIdempotencyService _idempotency;\n    public PaymentsController(IPaymentService payment, IIdempotencyService idempotency) { _payment = payment; _idempotency = idempotency; }\n    [HttpPost]\n    public async Task<IActionResult> Pay(PaymentRequest request, CancellationToken ct)\n    {\n        var key = Request.Headers[\"X-Org-Idempotency-Key\"].ToString();\n        await _idempotency.ValidateAsync(key, ct);\n        return Ok(await _payment.PayAsync(request, ct));\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "API",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-API-005"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-011",
+      "standard_rule_id": "ORG-SEC-001",
+      "title": "Violation - Citizen ID Masking Standard",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC011.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC011;\n\nusing Microsoft.Extensions.Logging;\npublic sealed class AuditService\n{\n    private readonly ILogger<AuditService> _logger;\n    public AuditService(ILogger<AuditService> logger) => _logger = logger;\n    public void LogCitizen(string citizenId)\n        => _logger.LogInformation(\"CitizenId={CitizenId}\", citizenId); // TC-011\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_CITIZEN_ID_MASKING_REQUIRED",
+          "rule_id": "ORG-SEC-001",
+          "category": "Security",
+          "severity": "High",
+          "expected_description": "เลขประจำตัวประชาชนต้องไม่ถูกบันทึกลง log แบบเต็ม ต้อง mask เหลือเฉพาะ 4 หลักท้าย"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-001"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-012",
+      "standard_rule_id": "ORG-SEC-001",
+      "title": "Compliant - Citizen ID Masking Standard",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC012.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC012;\n\nusing Microsoft.Extensions.Logging;\npublic static class OrgDataMasker { public static string MaskCitizenId(string value) => value.Length <= 4 ? value : new string('*', value.Length - 4) + value[^4..]; }\npublic sealed class AuditService\n{\n    private readonly ILogger<AuditService> _logger;\n    public AuditService(ILogger<AuditService> logger) => _logger = logger;\n    public void LogCitizen(string citizenId)\n        => _logger.LogInformation(\"CitizenId={CitizenId}\", OrgDataMasker.MaskCitizenId(citizenId));\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Security",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-001"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-013",
+      "standard_rule_id": "ORG-SEC-002",
+      "title": "Violation - Organization Token Logging Prohibition",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC013.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC013;\n\nusing Microsoft.AspNetCore.Http;\nusing Microsoft.Extensions.Logging;\npublic sealed class AuthAudit\n{\n    private readonly ILogger<AuthAudit> _logger; private readonly IHttpContextAccessor _http;\n    public AuthAudit(ILogger<AuthAudit> logger, IHttpContextAccessor http) { _logger = logger; _http = http; }\n    public void Log() => _logger.LogInformation(\"Authorization={Authorization}\", _http.HttpContext?.Request.Headers.Authorization.ToString()); // TC-013\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_TOKEN_LOGGING_PROHIBITED",
+          "rule_id": "ORG-SEC-002",
+          "category": "Security",
+          "severity": "Critical",
+          "expected_description": "ห้ามบันทึก access token, refresh token, ID token หรือ Authorization header ลง application log แม้จะ mask บางส่วน"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-002"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-014",
+      "standard_rule_id": "ORG-SEC-002",
+      "title": "Compliant - Organization Token Logging Prohibition",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC014.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC014;\n\nusing Microsoft.Extensions.Logging;\npublic sealed class AuthAudit\n{\n    private readonly ILogger<AuthAudit> _logger;\n    public AuthAudit(ILogger<AuthAudit> logger) => _logger = logger;\n    public void Log(string subjectId) => _logger.LogInformation(\"Authenticated subject={Subject}\", subjectId);\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Security",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-002"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-015",
+      "standard_rule_id": "ORG-SEC-003",
+      "title": "Violation - Legal Entity Context Verification",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC015.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC015;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IApplicationService { Task<object> GetByOrganizationAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}\")]\npublic sealed class ApplicationsController : ControllerBase\n{\n    private readonly IApplicationService _service;\n    public ApplicationsController(IApplicationService service) => _service = service;\n    [HttpGet(\"companies/{organizationId}/applications\")]\n    public async Task<IActionResult> Get(string organizationId, CancellationToken ct)\n        => Ok(await _service.GetByOrganizationAsync(organizationId, ct)); // TC-015\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_DBDID_CONTEXT_REQUIRED",
+          "rule_id": "ORG-SEC-003",
+          "category": "Security",
+          "severity": "Critical",
+          "expected_description": "Endpoint สำหรับนิติบุคคลต้องตรวจ organizationId/legalEntityId จาก trusted identity context และห้ามเชื่อค่าที่ client ส่งมาโดยตรง"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-003"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-016",
+      "standard_rule_id": "ORG-SEC-003",
+      "title": "Compliant - Legal Entity Context Verification",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC016.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC016;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IApplicationService { Task<object> GetByOrganizationAsync(string id, CancellationToken ct); }\npublic interface IOrgIdentityContext { string LegalEntityId { get; } }\npublic interface IOrgAuthorizationService { Task EnsureLegalEntityAccessAsync(string id); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}\")]\npublic sealed class ApplicationsController : ControllerBase\n{\n    private readonly IApplicationService _service; private readonly IOrgIdentityContext _identity; private readonly IOrgAuthorizationService _auth;\n    public ApplicationsController(IApplicationService service, IOrgIdentityContext identity, IOrgAuthorizationService auth) { _service=service; _identity=identity; _auth=auth; }\n    [HttpGet(\"companies/applications\")]\n    public async Task<IActionResult> Get(CancellationToken ct)\n    {\n        var legalEntityId = _identity.LegalEntityId;\n        await _auth.EnsureLegalEntityAccessAsync(legalEntityId);\n        return Ok(await _service.GetByOrganizationAsync(legalEntityId, ct));\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Security",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-003"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-017",
+      "standard_rule_id": "ORG-SEC-004",
+      "title": "Violation - Person Identity Context Verification",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC017.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC017;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IPersonService { Task<object> GetByCitizenIdAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}\")]\npublic sealed class PersonsController : ControllerBase\n{\n    private readonly IPersonService _service;\n    public PersonsController(IPersonService service) => _service = service;\n    [HttpGet(\"persons/{citizenId}/profile\")]\n    public async Task<IActionResult> Get(string citizenId, CancellationToken ct)\n        => Ok(await _service.GetByCitizenIdAsync(citizenId, ct)); // TC-017\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_PERSON_CONTEXT_REQUIRED",
+          "rule_id": "ORG-SEC-004",
+          "category": "Security",
+          "severity": "Critical",
+          "expected_description": "Endpoint สำหรับบุคคลธรรมดาต้องใช้ person identifier จาก trusted identity context ห้ามใช้ citizenId จาก request เป็นหลักในการตัดสินสิทธิ์"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-004"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-018",
+      "standard_rule_id": "ORG-SEC-004",
+      "title": "Compliant - Person Identity Context Verification",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC018.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC018;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IPersonService { Task<object> GetByPersonIdAsync(string id, CancellationToken ct); }\npublic interface IOrgIdentityContext { string PersonId { get; } }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}\")]\npublic sealed class PersonsController : ControllerBase\n{\n    private readonly IPersonService _service; private readonly IOrgIdentityContext _identity;\n    public PersonsController(IPersonService service, IOrgIdentityContext identity) { _service=service; _identity=identity; }\n    [HttpGet(\"persons/profile\")]\n    public async Task<IActionResult> Get(CancellationToken ct)\n        => Ok(await _service.GetByPersonIdAsync(_identity.PersonId, ct));\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Security",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-004"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-019",
+      "standard_rule_id": "ORG-SEC-005",
+      "title": "Violation - Organization Sensitive Response Field Policy",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC019.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC019;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record User(string DisplayName, string CitizenId, string PasswordHash, string RefreshToken, string InternalUserId);\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    [HttpGet] public IActionResult Get()\n    {\n        var user = new User(\"Demo\",\"1234567890123\",\"hash\",\"refresh-token\",\"internal-001\");\n        return Ok(new { user.DisplayName, user.CitizenId, user.PasswordHash, user.RefreshToken, user.InternalUserId }); // TC-019\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_SENSITIVE_FIELD_RESPONSE_PROHIBITED",
+          "rule_id": "ORG-SEC-005",
+          "category": "Security",
+          "severity": "High",
+          "expected_description": "API response ห้ามมี citizenId เต็ม, passwordHash, refreshToken, apiSecret หรือ internalUserId เว้นแต่ endpoint ถูกระบุใน allowlist ขององค์กร"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-005"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-020",
+      "standard_rule_id": "ORG-SEC-005",
+      "title": "Compliant - Organization Sensitive Response Field Policy",
+      "technology": ".NET Web API",
+      "category": "Security",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC020.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC020;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record User(string DisplayName, string CitizenId);\npublic sealed record UserPublicDto(string DisplayName, string CitizenIdMasked);\npublic static class OrgDataMasker { public static string MaskCitizenId(string v) => new string('*', Math.Max(0,v.Length-4))+v[^Math.Min(4,v.Length)..]; }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    [HttpGet] public IActionResult Get()\n    {\n        var user = new User(\"Demo\",\"1234567890123\");\n        return Ok(new UserPublicDto(user.DisplayName, OrgDataMasker.MaskCitizenId(user.CitizenId)));\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Security",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-SEC-005"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-021",
+      "standard_rule_id": "ORG-ARCH-001",
+      "title": "Violation - Organization Controller Boundary",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC021.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC021;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record OrderRequest(decimal Amount);\npublic interface IOrderService { Task<object> CreateAsync(OrderRequest request, decimal total, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/orders\")]\npublic sealed class OrdersController : ControllerBase\n{\n    private readonly IOrderService _service; public OrdersController(IOrderService service) => _service=service;\n    [HttpPost]\n    public async Task<IActionResult> Create(OrderRequest request, CancellationToken ct)\n    {\n        var total = request.Amount > 10000 ? request.Amount * 0.9m : request.Amount; // TC-021 business rule in controller\n        return Ok(await _service.CreateAsync(request, total, ct));\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_CONTROLLER_SERVICE_BOUNDARY",
+          "rule_id": "ORG-ARCH-001",
+          "category": "Architecture",
+          "severity": "Medium",
+          "expected_description": "Controller ขององค์กรทำได้เฉพาะ validate transport input, authorization orchestration, เรียก Application Service และ map HTTP response; ห้ามมี business decision"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-001"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-022",
+      "standard_rule_id": "ORG-ARCH-001",
+      "title": "Compliant - Organization Controller Boundary",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC022.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC022;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record OrderRequest(decimal Amount);\npublic interface IOrderApplicationService { Task<object> CreateAsync(OrderRequest request, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/orders\")]\npublic sealed class OrdersController : ControllerBase\n{\n    private readonly IOrderApplicationService _service; public OrdersController(IOrderApplicationService service) => _service=service;\n    [HttpPost] public async Task<IActionResult> Create(OrderRequest request, CancellationToken ct)\n        => Ok(await _service.CreateAsync(request, ct));\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Architecture",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-001"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-023",
+      "standard_rule_id": "ORG-ARCH-002",
+      "title": "Violation - Repository Access Restricted in Controller",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC023.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC023;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IUserRepository { Task<object?> FindAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    private readonly IUserRepository _repository;\n    public UsersController(IUserRepository repository) => _repository = repository; // TC-023\n    [HttpGet(\"{id}\")] public async Task<IActionResult> Get(string id, CancellationToken ct) => Ok(await _repository.FindAsync(id, ct));\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_REPOSITORY_ACCESS_FROM_CONTROLLER",
+          "rule_id": "ORG-ARCH-002",
+          "category": "Architecture",
+          "severity": "High",
+          "expected_description": "Controller ห้าม inject หรือเรียก Repository/DbContext/MongoCollection โดยตรง ต้องผ่าน Application Service เท่านั้น"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-002"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-024",
+      "standard_rule_id": "ORG-ARCH-002",
+      "title": "Compliant - Repository Access Restricted in Controller",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC024.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC024;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IUserApplicationService { Task<object?> FindAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    private readonly IUserApplicationService _service;\n    public UsersController(IUserApplicationService service) => _service = service;\n    [HttpGet(\"{id}\")] public async Task<IActionResult> Get(string id, CancellationToken ct) => Ok(await _service.FindAsync(id, ct));\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Architecture",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-002"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-025",
+      "standard_rule_id": "ORG-ARCH-003",
+      "title": "Violation - Domain Entity Must Not Cross API Boundary",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC025.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC025;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record UserEntity(string Id, string DisplayName);\npublic interface IUserService { Task<UserEntity> GetEntityAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    private readonly IUserService _service; public UsersController(IUserService service)=>_service=service;\n    [HttpGet(\"{id}\")] public async Task<UserEntity> Get(string id, CancellationToken ct)\n        => await _service.GetEntityAsync(id, ct); // TC-025\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_DOMAIN_ENTITY_API_EXPOSURE",
+          "rule_id": "ORG-ARCH-003",
+          "category": "Architecture",
+          "severity": "Medium",
+          "expected_description": "Domain Entity และ Persistence Model ห้ามใช้เป็น request/response contract ของ API ต้อง map เป็น RequestDto/ResponseDto"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-003"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-026",
+      "standard_rule_id": "ORG-ARCH-003",
+      "title": "Compliant - Domain Entity Must Not Cross API Boundary",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC026.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC026;\n\nusing Microsoft.AspNetCore.Mvc;\npublic sealed record UserEntity(string Id, string DisplayName);\npublic sealed record UserResponseDto(string Id, string DisplayName);\npublic interface IUserService { Task<UserEntity> GetEntityAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/users\")]\npublic sealed class UsersController : ControllerBase\n{\n    private readonly IUserService _service; public UsersController(IUserService service)=>_service=service;\n    [HttpGet(\"{id}\")] public async Task<UserResponseDto> Get(string id, CancellationToken ct)\n    {\n        var e=await _service.GetEntityAsync(id,ct); return new UserResponseDto(e.Id,e.DisplayName);\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Architecture",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-003"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-027",
+      "standard_rule_id": "ORG-ARCH-004",
+      "title": "Violation - External Service Gateway Required",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC027.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC027;\n\nusing Microsoft.AspNetCore.Mvc;\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/profiles\")]\npublic sealed class ProfilesController : ControllerBase\n{\n    [HttpGet(\"{id}\")]\n    public async Task<IActionResult> GetProfile(string id)\n    {\n        using var client = new HttpClient(); // TC-027 direct external client\n        var json = await client.GetStringAsync($\"https://partner.example/users/{id}\");\n        return Ok(json);\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_EXTERNAL_SERVICE_GATEWAY_REQUIRED",
+          "rule_id": "ORG-ARCH-004",
+          "category": "Architecture",
+          "severity": "High",
+          "expected_description": "การเรียก API ภายนอกต้องผ่าน Gateway/Client abstraction ที่องค์กรกำหนด ห้ามสร้าง HttpClient หรือเรียก URL ภายนอกจาก Controller/Domain Service โดยตรง"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-004"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-028",
+      "standard_rule_id": "ORG-ARCH-004",
+      "title": "Compliant - External Service Gateway Required",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC028.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC028;\n\nusing Microsoft.AspNetCore.Mvc;\npublic interface IExternalGateway { Task<string> GetProfileAsync(string id, CancellationToken ct); }\n[ApiController]\n[Route(\"api/org/v{version:apiVersion}/profiles\")]\npublic sealed class ProfilesController : ControllerBase\n{\n    private readonly IExternalGateway _gateway; public ProfilesController(IExternalGateway gateway)=>_gateway=gateway;\n    [HttpGet(\"{id}\")] public async Task<IActionResult> GetProfile(string id, CancellationToken ct)\n        => Ok(await _gateway.GetProfileAsync(id, ct));\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Architecture",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-004"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-029",
+      "standard_rule_id": "ORG-ARCH-005",
+      "title": "Violation - CancellationToken Propagation",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC029.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC029;\n\npublic sealed record UserDto(string Id);\npublic interface IUserRepository { Task<UserDto> GetAsync(string id); }\npublic sealed class UserApplicationService\n{\n    private readonly IUserRepository _repository; public UserApplicationService(IUserRepository repository)=>_repository=repository;\n    public async Task<UserDto> GetAsync(string id) => await _repository.GetAsync(id); // TC-029\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_CANCELLATION_TOKEN_REQUIRED",
+          "rule_id": "ORG-ARCH-005",
+          "category": "Architecture",
+          "severity": "Medium",
+          "expected_description": "Application Service, Repository และ External Gateway ที่เป็น async I/O ต้องรับและส่งต่อ CancellationToken จาก HTTP request"
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-005"
+      ],
+      "dataset_note": "Controlled single-violation case. The intended Ground Truth is the target rule only. Do not infer unrelated violations from context not shown."
+    },
+    {
+      "test_case_id": "TC-030",
+      "standard_rule_id": "ORG-ARCH-005",
+      "title": "Compliant - CancellationToken Propagation",
+      "technology": ".NET Web API",
+      "category": "Architecture",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC030.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC030;\n\npublic sealed record UserDto(string Id);\npublic interface IUserRepository { Task<UserDto> GetAsync(string id, CancellationToken ct); }\npublic sealed class UserApplicationService\n{\n    private readonly IUserRepository _repository; public UserApplicationService(IUserRepository repository)=>_repository=repository;\n    public async Task<UserDto> GetAsync(string id, CancellationToken cancellationToken)\n        => await _repository.GetAsync(id, cancellationToken);\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Architecture",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-ARCH-005"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only rules for which the supplied snippet contains sufficient evidence. Missing surrounding context must not be treated as a violation."
+    },
+    {
+      "test_case_id": "TC-031",
+      "standard_rule_id": "ORG-CODE-001",
+      "title": "Violation - Variable and Parameter Naming - camelCase",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC031.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC031;\n\npublic interface IService { UserDto Get(string id); }\npublic sealed record UserDto(string Id = \"\");\npublic sealed class Example\n{\n    private readonly IService _service;\n    public Example(IService service) => _service = service;\n    public UserDto GetUser(string UserId)\n    {\n        var UserProfile = _service.Get(UserId); // TC-031\n        return UserProfile;\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_VARIABLE_PARAMETER_CAMELCASE",
+          "rule_id": "ORG-CODE-001",
+          "category": "Coding",
+          "severity": "Low",
+          "expected_description": "Local variables and method parameters must use camelCase."
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-001"
+      ],
+      "dataset_note": "Controlled single-violation case."
+    },
+    {
+      "test_case_id": "TC-032",
+      "standard_rule_id": "ORG-CODE-001",
+      "title": "Compliant - Variable and Parameter Naming - camelCase",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC032.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC032;\n\npublic interface IService { UserDto Get(string id); }\npublic sealed record UserDto(string Id = \"\");\npublic sealed class Example\n{\n    private readonly IService _service;\n    public Example(IService service) => _service = service;\n    public UserDto GetUser(string userId)\n    {\n        var userProfile = _service.Get(userId); \n        return userProfile;\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Coding",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-001"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only the target organization standard."
+    },
+    {
+      "test_case_id": "TC-033",
+      "standard_rule_id": "ORG-CODE-002",
+      "title": "Violation - Async Method Naming - Async Suffix",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC033.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC033;\n\npublic interface IService { Task<UserDto> GetUserAsync(string id, CancellationToken ct); }\npublic sealed record UserDto(string Id = \"\");\npublic sealed class Example\n{\n    private readonly IService _service; public Example(IService service)=>_service=service;\n    public async Task<UserDto> GetUser(string userId, CancellationToken ct) // TC-033 missing Async suffix\n        => await _service.GetUserAsync(userId, ct);\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_ASYNC_METHOD_SUFFIX_REQUIRED",
+          "rule_id": "ORG-CODE-002",
+          "category": "Coding",
+          "severity": "Low",
+          "expected_description": "Methods returning Task/Task<T> must end with Async."
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-002"
+      ],
+      "dataset_note": "Controlled single-violation case."
+    },
+    {
+      "test_case_id": "TC-034",
+      "standard_rule_id": "ORG-CODE-002",
+      "title": "Compliant - Async Method Naming - Async Suffix",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC034.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC034;\n\npublic interface IService { Task<UserDto> GetUserAsync(string id, CancellationToken ct); }\npublic sealed record UserDto(string Id = \"\");\npublic sealed class Example\n{\n    private readonly IService _service; public Example(IService service)=>_service=service;\n    public async Task<UserDto> GetUserAsync(string userId, CancellationToken ct)\n        => await _service.GetUserAsync(userId, ct);\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Coding",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-002"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only the target organization standard."
+    },
+    {
+      "test_case_id": "TC-035",
+      "standard_rule_id": "ORG-CODE-003",
+      "title": "Violation - Private Field Naming - _camelCase",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC035.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC035;\n\npublic interface IUserRepository { }\npublic sealed class UserService\n{\n    private readonly IUserRepository UserRepository; // TC-035\n    public UserService(IUserRepository userRepository) => UserRepository = userRepository;\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_PRIVATE_FIELD_NAMING_REQUIRED",
+          "rule_id": "ORG-CODE-003",
+          "category": "Coding",
+          "severity": "Low",
+          "expected_description": "Private instance fields must use _camelCase."
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-003"
+      ],
+      "dataset_note": "Controlled single-violation case."
+    },
+    {
+      "test_case_id": "TC-036",
+      "standard_rule_id": "ORG-CODE-003",
+      "title": "Compliant - Private Field Naming - _camelCase",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC036.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC036;\n\npublic interface IUserRepository { }\npublic sealed class UserService\n{\n    private readonly IUserRepository _userRepository;\n    public UserService(IUserRepository userRepository) => _userRepository = userRepository;\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Coding",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-003"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only the target organization standard."
+    },
+    {
+      "test_case_id": "TC-037",
+      "standard_rule_id": "ORG-CODE-004",
+      "title": "Violation - Type and Method Naming - PascalCase",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC037.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC037;\n\npublic sealed record UserDto;\npublic sealed class userService // TC-037\n{\n    public UserDto getUser(string userId) => new();\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_TYPE_METHOD_PASCALCASE_REQUIRED",
+          "rule_id": "ORG-CODE-004",
+          "category": "Coding",
+          "severity": "Low",
+          "expected_description": "Class/type and method names must use PascalCase."
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-004"
+      ],
+      "dataset_note": "Controlled single-violation case."
+    },
+    {
+      "test_case_id": "TC-038",
+      "standard_rule_id": "ORG-CODE-004",
+      "title": "Compliant - Type and Method Naming - PascalCase",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC038.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC038;\n\npublic sealed record UserDto;\npublic sealed class UserService\n{\n    public UserDto GetUser(string userId) => new();\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Coding",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-004"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only the target organization standard."
+    },
+    {
+      "test_case_id": "TC-039",
+      "standard_rule_id": "ORG-CODE-005",
+      "title": "Violation - Exception Handling - Empty Catch Prohibited",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "SINGLE_VIOLATION",
+      "expected_status": "FAIL",
+      "source_file": "TestCases/TC039.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC039;\n\npublic interface IService { Task ProcessAsync(CancellationToken ct); }\npublic sealed class Example\n{\n    private readonly IService _service; public Example(IService service)=>_service=service;\n    public async Task ProcessAsync(CancellationToken ct)\n    {\n        try { await _service.ProcessAsync(ct); }\n        catch (Exception) { } // TC-039 empty catch\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "ORG_EMPTY_CATCH_PROHIBITED",
+          "rule_id": "ORG-CODE-005",
+          "category": "Coding",
+          "severity": "Medium",
+          "expected_description": "Exceptions must not be silently swallowed by an empty catch block; handle, log, translate, or rethrow them according to the organization exception policy."
+        }
+      ],
+      "expected_issue_count": 1,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-005"
+      ],
+      "dataset_note": "Controlled single-violation case."
+    },
+    {
+      "test_case_id": "TC-040",
+      "standard_rule_id": "ORG-CODE-005",
+      "title": "Compliant - Exception Handling - Empty Catch Prohibited",
+      "technology": ".NET Web API",
+      "category": "Coding",
+      "test_type": "NO_VIOLATION",
+      "expected_status": "PASS",
+      "source_file": "TestCases/TC040.cs",
+      "source_code": "namespace OrgCodeReviewCases.TC040;\n\nusing Microsoft.Extensions.Logging;\npublic interface IService { Task ProcessAsync(CancellationToken ct); }\npublic sealed class Example\n{\n    private readonly IService _service; private readonly ILogger<Example> _logger;\n    public Example(IService service, ILogger<Example> logger) { _service=service; _logger=logger; }\n    public async Task ProcessAsync(CancellationToken ct)\n    {\n        try { await _service.ProcessAsync(ct); }\n        catch (Exception ex)\n        {\n            _logger.LogError(ex, \"{EventName}\", \"ProcessFailed\");\n            throw;\n        }\n    }\n}",
+      "ground_truth": [
+        {
+          "issue_type": "NO_ISSUE",
+          "rule_id": null,
+          "category": "Coding",
+          "severity": null,
+          "expected_description": "No violation for the evaluated organization standard."
+        }
+      ],
+      "expected_issue_count": 0,
+      "enabled": true,
+      "evaluation_scope": [
+        "ORG-CODE-005"
+      ],
+      "dataset_note": "Clean controlled case. Evaluate only the target organization standard."
+    }
+  ]
+}
