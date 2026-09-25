@@ -21,6 +21,6 @@ public sealed class UsersController : ControllerBase
     public async Task<IActionResult> Get(string id, CancellationToken ct)
     {
         var user = await _service.GetAsync(id, ct);
-        return Ok(user); // TC-001: ORG-API-001 violation
+        return Ok(user);
     }
 }
