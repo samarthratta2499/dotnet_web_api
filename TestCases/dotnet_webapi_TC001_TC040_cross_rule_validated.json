@@ -25,48 +25,6 @@
       "policy": "FAIL cases contain one intentional target-rule violation; PASS cases contain no intentional violations. Ground-truth comments are removed from source_code."
     }
   },
-  "coding_standards": [
-    {
-      "rule_id": "ORG-CODE-001",
-      "issue_type": "ORG_VARIABLE_PARAMETER_CAMELCASE",
-      "title": "Variable and Parameter Naming - camelCase",
-      "category": "Coding",
-      "severity": "Low",
-      "description": "Local variables and method parameters must use camelCase."
-    },
-    {
-      "rule_id": "ORG-CODE-002",
-      "issue_type": "ORG_ASYNC_METHOD_SUFFIX_REQUIRED",
-      "title": "Async Method Naming - Async Suffix",
-      "category": "Coding",
-      "severity": "Low",
-      "description": "Methods returning Task/Task<T> must end with Async."
-    },
-    {
-      "rule_id": "ORG-CODE-003",
-      "issue_type": "ORG_PRIVATE_FIELD_NAMING_REQUIRED",
-      "title": "Private Field Naming - _camelCase",
-      "category": "Coding",
-      "severity": "Low",
-      "description": "Private instance fields must use _camelCase."
-    },
-    {
-      "rule_id": "ORG-CODE-004",
-      "issue_type": "ORG_TYPE_METHOD_PASCALCASE_REQUIRED",
-      "title": "Type and Method Naming - PascalCase",
-      "category": "Coding",
-      "severity": "Low",
-      "description": "Class/type and method names must use PascalCase."
-    },
-    {
-      "rule_id": "ORG-CODE-005",
-      "issue_type": "ORG_EMPTY_CATCH_PROHIBITED",
-      "title": "Exception Handling - Empty Catch Prohibited",
-      "category": "Coding",
-      "severity": "Medium",
-      "description": "Exceptions must not be silently swallowed by an empty catch block; handle, log, translate, or rethrow them according to the organization exception policy."
-    }
-  ],
   "test_cases": [
     {
       "test_case_id": "TC-001",
